@@ -5,7 +5,7 @@
                   
 Use a ``Plunger`` to push test data through your cascading pipework. Catch the output in a ``Bucket`` and check it for correctness.
 #Overview
-**plunger** is a unit testing framework for the [Cascading platform](http://cascading.org "Cascading Application Platform homepage"). It helps you write small and fast unit tests for your ``Assemblies`` with fined grained assertions. A fluent API allows you to rapidly construct test data for delivery via ``Data`` instances and then make assertions on the data captured by ``Buckets``. All test data is maintained in memory to avoid unnecessary I/O overhead. Utility methods are provided as a bridge between input/output files and their in-memory equivalents so that the same style of testing can be applied to ``Flows`` and ``Cascades``.
+**plunger** is a unit testing framework for the [cascading platform](http://cascading.org "Cascading Application Platform homepage"). It helps you write small and fast unit tests for your ``Assemblies`` with fined grained assertions. A fluent API allows you to rapidly construct test data for delivery via ``Data`` instances and then make assertions on the data captured by ``Buckets``. All test data is maintained in memory to avoid unnecessary I/O overhead. Utility methods are provided as a bridge between input/output files and their in-memory equivalents so that the same style of testing can be applied to ``Flows`` and ``Cascades``.
 #Testing Assemblies
 ####An end-to-end example
     Plunger plunger = new Plunger();
