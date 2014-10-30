@@ -34,7 +34,11 @@ import cascading.tuple.Tuple;
 import cascading.tuple.TupleEntry;
 import cascading.tuple.TupleEntryCollector;
 
-/** Writes a {@link Data} instance to a {@link Tap}. Currently works only with hadoop and local taps. */
+/**
+ * Writes a {@link Data} instance to a {@link Tap}. Currently works only with hadoop and local taps.
+ * <p/>
+ * <strong>WARNING:</strong> This is exceedingly brittle as it relies on cascading internals.
+ */
 public class TapDataWriter {
 
   private final Data data;
@@ -60,6 +64,8 @@ public class TapDataWriter {
     @SuppressWarnings("unchecked")
     Tap<JobConf, ?, ?> hadoopTap = (Tap<JobConf, ?, ?>) tap;
     JobConf conf = new JobConf();
+    // WARNING: This is exceedingly brittle as it relies on cascading internals
+    conf.setInt("cascading.flow.step", 1);
     HadoopFlowProcess flowProcess = new HadoopFlowProcess(conf);
     hadoopTap.sinkConfInit(flowProcess, conf);
     TupleEntryCollector collector = hadoopTap.openForWrite(flowProcess);

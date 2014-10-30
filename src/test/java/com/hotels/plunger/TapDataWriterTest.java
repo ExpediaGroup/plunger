@@ -28,9 +28,6 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 
-import com.hotels.plunger.Data;
-import com.hotels.plunger.TapDataWriter;
-
 import cascading.tap.Tap;
 import cascading.tap.partition.DelimitedPartition;
 import cascading.tuple.Fields;
@@ -45,7 +42,7 @@ public class TapDataWriterTest {
   private final Fields valueFields = new Fields(Fields.names("B", "C"), Fields.types(Integer.TYPE, String.class));
   private final Fields fields = Fields.join(partitionFields, valueFields);
 
-  private final Data data = new Data(fields, Arrays.asList(new Tuple("X", 1, "hello")));
+  private final Data data = new Data(fields, Arrays.asList(new Tuple("X", 1, "hello"), new Tuple("Y", 2, "world")));
 
   @Test
   public void writeLocal() throws IOException {
@@ -57,7 +54,7 @@ public class TapDataWriterTest {
     assertThat((cascading.tap.local.FileTap) returnedTap, is(fileTap));
     String written = FileUtils.readFileToString(tsvFile, Charset.forName("UTF-8"));
 
-    assertThat(written, is("X\t1\thello\n"));
+    assertThat(written, is("X\t1\thello\nY\t2\tworld\n"));
   }
 
   @Test
@@ -70,10 +67,15 @@ public class TapDataWriterTest {
 
     assertThat((cascading.tap.local.PartitionTap) returnedTap, is(partitionTap));
 
-    File tsvFile = new File(tsvFolder, "X");
-    String written = FileUtils.readFileToString(tsvFile, Charset.forName("UTF-8"));
+    File tsvFileX = new File(tsvFolder, "X");
+    String writtenX = FileUtils.readFileToString(tsvFileX, Charset.forName("UTF-8"));
 
-    assertThat(written, is("1\thello\n"));
+    assertThat(writtenX, is("1\thello\n"));
+
+    File tsvFileY = new File(tsvFolder, "Y");
+    String writtenY = FileUtils.readFileToString(tsvFileY, Charset.forName("UTF-8"));
+
+    assertThat(writtenY, is("2\tworld\n"));
   }
 
   @SuppressWarnings("deprecation")
@@ -86,10 +88,15 @@ public class TapDataWriterTest {
 
     assertThat((cascading.tap.local.TemplateTap) returnedTap, is(templateTap));
 
-    File tsvFile = new File(tsvFolder, "X");
-    String written = FileUtils.readFileToString(tsvFile, Charset.forName("UTF-8"));
+    File tsvFileX = new File(tsvFolder, "X");
+    String writtenX = FileUtils.readFileToString(tsvFileX, Charset.forName("UTF-8"));
 
-    assertThat(written, is("1\thello\n"));
+    assertThat(writtenX, is("1\thello\n"));
+
+    File tsvFileY = new File(tsvFolder, "Y");
+    String writtenY = FileUtils.readFileToString(tsvFileY, Charset.forName("UTF-8"));
+
+    assertThat(writtenY, is("2\tworld\n"));
   }
 
   @Test
@@ -102,7 +109,7 @@ public class TapDataWriterTest {
     assertThat((cascading.tap.hadoop.Hfs) returnedTap, is(hfsTap));
     String written = FileUtils.readFileToString(new File(tsvFolder, "part-00000"), Charset.forName("UTF-8"));
 
-    assertThat(written, is("X\t1\thello\n"));
+    assertThat(written, is("X\t1\thello\nY\t2\tworld\n"));
   }
 
   @Test
@@ -111,14 +118,21 @@ public class TapDataWriterTest {
     cascading.tap.hadoop.PartitionTap partitionTap = new cascading.tap.hadoop.PartitionTap(
         new cascading.tap.hadoop.Hfs(new cascading.scheme.hadoop.TextDelimited(valueFields),
             tsvFolder.getAbsolutePath()), new DelimitedPartition(partitionFields));
+
+    Data data = new Data(fields, Arrays.asList(new Tuple("X", 1, "hello"), new Tuple("Y", 2, "world")));
     Tap<?, ?, ?> returnedTap = new TapDataWriter(data).toTap(partitionTap);
 
     assertThat((cascading.tap.hadoop.PartitionTap) returnedTap, is(partitionTap));
 
-    File tsvFile = new File(new File(tsvFolder, "X"), "part-00000-00000");
-    String written = FileUtils.readFileToString(tsvFile, Charset.forName("UTF-8"));
+    File tsvFileX = new File(new File(tsvFolder, "X"), "part-00000-00000");
+    String writtenX = FileUtils.readFileToString(tsvFileX, Charset.forName("UTF-8"));
 
-    assertThat(written, is("1\thello\n"));
+    assertThat(writtenX, is("1\thello\n"));
+
+    File tsvFileY = new File(new File(tsvFolder, "Y"), "part-00000-00001");
+    String writtenY = FileUtils.readFileToString(tsvFileY, Charset.forName("UTF-8"));
+
+    assertThat(writtenY, is("2\tworld\n"));
   }
 
   @SuppressWarnings("deprecation")
@@ -131,24 +145,38 @@ public class TapDataWriterTest {
 
     assertThat((cascading.tap.hadoop.TemplateTap) returnedTap, is(partitionTap));
 
-    File tsvFile = new File(new File(tsvFolder, "X"), "part-00000");
-    String written = FileUtils.readFileToString(tsvFile, Charset.forName("UTF-8"));
+    File tsvFileX = new File(new File(tsvFolder, "X"), "part-00000");
+    String writtenX = FileUtils.readFileToString(tsvFileX, Charset.forName("UTF-8"));
 
-    assertThat(written, is("1\thello\n"));
+    assertThat(writtenX, is("1\thello\n"));
+
+    File tsvFileY = new File(new File(tsvFolder, "Y"), "part-00000");
+    String writtenY = FileUtils.readFileToString(tsvFileY, Charset.forName("UTF-8"));
+
+    assertThat(writtenY, is("2\tworld\n"));
   }
 
   @Test
   public void writeMultiSink() throws IOException {
-    File tsvFolder = temporaryFolder.newFolder("data");
-    cascading.tap.MultiSinkTap<?, ?, ?> multiTap = new cascading.tap.MultiSinkTap<>(new cascading.tap.hadoop.Hfs(
-        new cascading.scheme.hadoop.TextDelimited(fields), tsvFolder.getAbsolutePath()));
+    File tsvFolder1 = temporaryFolder.newFolder("data1");
+    File tsvFolder2 = temporaryFolder.newFolder("data2");
+
+    Tap<?, ?, ?> tap1 = new cascading.tap.hadoop.Hfs(new cascading.scheme.hadoop.TextDelimited(fields),
+        tsvFolder1.getAbsolutePath());
+    Tap<?, ?, ?> tap2 = new cascading.tap.hadoop.Hfs(new cascading.scheme.hadoop.TextDelimited(valueFields),
+        tsvFolder2.getAbsolutePath());
+
+    @SuppressWarnings("unchecked")
+    cascading.tap.MultiSinkTap<?, ?, ?> multiTap = new cascading.tap.MultiSinkTap<>(tap1, tap2);
     Tap<?, ?, ?> returnedTap = new TapDataWriter(data).toTap(multiTap);
 
     assertThat(returnedTap == multiTap, is(true));
 
-    String written = FileUtils.readFileToString(new File(tsvFolder, "part-00000"), Charset.forName("UTF-8"));
+    String written1 = FileUtils.readFileToString(new File(tsvFolder1, "part-00000"), Charset.forName("UTF-8"));
+    assertThat(written1, is("X\t1\thello\nY\t2\tworld\n"));
 
-    assertThat(written, is("X\t1\thello\n"));
+    String written2 = FileUtils.readFileToString(new File(tsvFolder2, "part-00000"), Charset.forName("UTF-8"));
+    assertThat(written2, is("1\thello\n2\tworld\n"));
   }
 
   @Test(expected = IllegalArgumentException.class)
