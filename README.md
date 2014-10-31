@@ -45,6 +45,7 @@ The above example exhibits many of the core features provided by **plunger**. Wh
     List<TupleEntry> tupleEntries = bucket.result().asTupleEntryList();
     assertThat(tupleEntries.size(), is(1));
     assertThat(tupleEntries.get(0).getString("first"), is("Bob"));
+Note that **plunger** requires that you connect all of your ``Pipes`` and create all of your ``Buckets`` before attempting to obtain the result from any of your ``Buckets``.
 ####Create a sorted view of captured data
 To increase the predictability of the results you can optionally pass in one or more sort fields to order the tuples:
 
