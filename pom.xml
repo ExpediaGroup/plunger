@@ -13,6 +13,7 @@
   <version>1.0.0-SNAPSHOT</version>
   <name>Plunger</name>
   <description>Framework to simplify testing Cascading applications</description>
+  <url>https://github.com/HotelsDotCom/plunger</url>
 
   <properties>
     <cascading.version>2.6.1-wip-44</cascading.version>
