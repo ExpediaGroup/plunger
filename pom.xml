@@ -38,6 +38,7 @@
   <scm>
     <connection>scm:git:git@github.com:HotelsDotCom/${project.artifactId}.git</connection>
     <developerConnection>scm:git:git@github.com:HotelsDotCom/${project.artifactId}.git</developerConnection>
+    <url>https://github.com/HotelsDotCom/plunger</url>
     <tag>HEAD</tag>
   </scm>
 
