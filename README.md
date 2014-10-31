@@ -145,13 +145,9 @@ Plunger expects the following dependencies to be provided:
 
 Earlier versions may work but have not been tested.
 
+#Credits
 
-#Thanks to
-
-* Dave Maughan
-* James Grant
-* Adrian Woodhead
-* Sven Zethelius
+Created by [Elliot West](https://github.com/teabot), with thanks to: Dave Maughan, James Grant Adrian Woodhead, Sven Zethelius
 
 #Legal
 This project is available under the [Apache 2.0 License](http://www.apache.org/licenses/LICENSE-2.0.html).

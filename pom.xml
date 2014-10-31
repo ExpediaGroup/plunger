@@ -52,10 +52,14 @@
       <id>teabot</id>
       <email>teabot@gmail.com</email>
       <timezone>0</timezone>
+      <organization>Hotels.com</organization>
+      <organizationUrl>http://hotels.com</organizationUrl>
     </developer>
     <developer>
       <name>Dave Maughan</name>
       <timezone>0</timezone>
+      <organization>Hotels.com</organization>
+      <organizationUrl>http://hotels.com</organizationUrl>
     </developer>
   </developers>
 
