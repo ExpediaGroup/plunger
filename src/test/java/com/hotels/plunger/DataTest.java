@@ -23,8 +23,6 @@ import java.util.List;
 
 import org.junit.Test;
 
-import com.hotels.plunger.Data;
-
 import cascading.tuple.Fields;
 import cascading.tuple.FieldsResolverException;
 import cascading.tuple.Tuple;
@@ -46,6 +44,14 @@ public class DataTest {
   public void selectedFields() {
     Fields fields = new Data(new Fields("A", "B"), new ArrayList<Tuple>()).withFields(new Fields("A")).selectedFields();
     assertThat(fields, is(new Fields("A")));
+  }
+
+  @Test
+  public void selectedFieldsOrdering() {
+    Fields fields = new Data(new Fields("A", "B", "C"), new ArrayList<Tuple>())
+        .withFields(new Fields("C", "A", "B"))
+        .selectedFields();
+    assertThat(fields, is(new Fields("C", "A", "B")));
   }
 
   @Test
@@ -118,6 +124,25 @@ public class DataTest {
   }
 
   @Test
+  public void asTupleEntryListWithFieldsOrdering() throws Exception {
+    Fields fields = new Fields("A", "B");
+    List<Tuple> tuples = new ArrayList<Tuple>();
+    tuples.add(new Tuple(1, 100));
+    tuples.add(new Tuple(2, 200));
+
+    List<TupleEntry> entryList = new Data(fields, tuples).withFields(new Fields("B", "A")).asTupleEntryList();
+    assertThat(entryList.size(), is(2));
+    assertThat(entryList.get(0).size(), is(2));
+    assertThat(entryList.get(0).getFields(), is(new Fields("B", "A")));
+    assertThat(entryList.get(0).getInteger(0), is(100));
+    assertThat(entryList.get(0).getInteger(1), is(1));
+    assertThat(entryList.get(1).size(), is(2));
+    assertThat(entryList.get(1).getFields(), is(new Fields("B", "A")));
+    assertThat(entryList.get(1).getInteger(0), is(200));
+    assertThat(entryList.get(1).getInteger(1), is(2));
+  }
+
+  @Test
   public void asTupleEntryListWithFieldsNone() throws Exception {
     Fields fields = new Fields("A", "B");
     List<Tuple> tuples = new ArrayList<Tuple>();
@@ -173,6 +198,23 @@ public class DataTest {
     assertThat(entryList.get(0).getInteger(0), is(100));
     assertThat(entryList.get(1).size(), is(1));
     assertThat(entryList.get(1).getInteger(0), is(200));
+  }
+
+  @Test
+  public void asTupleListWithFieldsOrdering() throws Exception {
+    Fields fields = new Fields("A", "B");
+    List<Tuple> tuples = new ArrayList<Tuple>();
+    tuples.add(new Tuple(1, 100));
+    tuples.add(new Tuple(2, 200));
+
+    List<Tuple> entryList = new Data(fields, tuples).withFields(new Fields("B", "A")).asTupleList();
+    assertThat(entryList.size(), is(2));
+    assertThat(entryList.get(0).size(), is(2));
+    assertThat(entryList.get(0).getInteger(0), is(100));
+    assertThat(entryList.get(0).getInteger(1), is(1));
+    assertThat(entryList.get(1).size(), is(2));
+    assertThat(entryList.get(1).getInteger(0), is(200));
+    assertThat(entryList.get(1).getInteger(1), is(2));
   }
 
   @Test
