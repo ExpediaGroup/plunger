@@ -52,7 +52,7 @@ public class Bucket extends Tap<Properties, Iterator<Tuple>, List<Tuple>> implem
     super(new TupleScheme(fields));
     if (flow.isComplete()) {
       throw new IllegalStateException(
-          "This flow has already been executed - create all of your buckets before calling result() on any one of them.");
+          "You've already wielded your plunger! Create all of your buckets before calling result() on any one of them.");
     }
     this.flow = flow;
     output = new ArrayList<Tuple>();

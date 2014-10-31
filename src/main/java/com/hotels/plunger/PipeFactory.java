@@ -37,7 +37,7 @@ class PipeFactory {
   Pipe newInstance() {
     if (flow.isComplete()) {
       throw new IllegalStateException(
-          "This flow has already been executed - create all of your pipes before calling result() on any of your buckets.");
+          "You've already wielded your plunger! Create all of your pipes before calling result() on any of your buckets.");
     }
     TupleListTap tupleTap = new TupleListTap(data.getDeclaredFields(), data.getTuples());
     Pipe pipe = new Pipe(name);
