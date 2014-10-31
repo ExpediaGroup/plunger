@@ -333,16 +333,4 @@
     </plugins>
   </reporting>
 
-  <distributionManagement>
-    <repository>
-      <id>edw-release</id>
-      <name>Internal Releases</name>
-      <url>http://nexus.sb.karmalab.net/nexus/content/repositories/edw-release/</url>
-    </repository>
-    <snapshotRepository>
-      <id>edw-snapshot</id>
-      <name>Internal Releases</name>
-      <url>http://nexus.sb.karmalab.net/nexus/content/repositories/edw-snapshot/</url>
-    </snapshotRepository>
-  </distributionManagement>
 </project>
