@@ -29,6 +29,7 @@ import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 
 import cascading.tap.Tap;
+import cascading.tap.hadoop.util.Hadoop18TapUtil;
 import cascading.tap.partition.DelimitedPartition;
 import cascading.tuple.Fields;
 import cascading.tuple.Tuple;
@@ -133,6 +134,8 @@ public class TapDataWriterTest {
     String writtenY = FileUtils.readFileToString(tsvFileY, Charset.forName("UTF-8"));
 
     assertThat(writtenY, is("2\tworld\n"));
+
+    assertThat(new File(tsvFolder, Hadoop18TapUtil.TEMPORARY_PATH).exists(), is(false));
   }
 
   @SuppressWarnings("deprecation")
@@ -154,6 +157,8 @@ public class TapDataWriterTest {
     String writtenY = FileUtils.readFileToString(tsvFileY, Charset.forName("UTF-8"));
 
     assertThat(writtenY, is("2\tworld\n"));
+
+    assertThat(new File(tsvFolder, Hadoop18TapUtil.TEMPORARY_PATH).exists(), is(false));
   }
 
   @Test

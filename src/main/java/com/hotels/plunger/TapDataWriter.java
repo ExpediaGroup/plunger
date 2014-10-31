@@ -24,6 +24,7 @@ import cascading.cascade.Cascade;
 import cascading.flow.Flow;
 import cascading.flow.FlowStep;
 import cascading.flow.hadoop.HadoopFlowProcess;
+import cascading.flow.hadoop.HadoopFlowStep;
 import cascading.flow.local.LocalFlowProcess;
 import cascading.flow.local.LocalFlowStep;
 import cascading.management.state.ClientState;
@@ -60,12 +61,15 @@ public class TapDataWriter {
     return tap;
   }
 
+  /* WARNING: This is exceedingly brittle as it relies on cascading internals */
   private void writeToHadoopTap(Tap<?, ?, ?> tap) throws IOException {
     @SuppressWarnings("unchecked")
     Tap<JobConf, ?, ?> hadoopTap = (Tap<JobConf, ?, ?>) tap;
     JobConf conf = new JobConf();
-    // WARNING: This is exceedingly brittle as it relies on cascading internals
+
+    // In Hadoop18TapUtil#cleanupJob() we don't want the '_temporary' folder to be deleted on collector.close()
     conf.setInt("cascading.flow.step", 1);
+
     HadoopFlowProcess flowProcess = new HadoopFlowProcess(conf);
     hadoopTap.sinkConfInit(flowProcess, conf);
     TupleEntryCollector collector = hadoopTap.openForWrite(flowProcess);
@@ -73,17 +77,27 @@ public class TapDataWriter {
       collector.add(tuple);
     }
     collector.close();
+
+    // We need to clean up the '_temporary' folder - apparently the flow step does this - so we do this here
+    HadoopFlowStep hadoopFlowStep = new HadoopFlowStep("writeToHadoopTap:" + hadoopTap.getIdentifier(), 1);
+    hadoopFlowStep.addSink("writeToHadoopTap:sink:" + hadoopTap.getIdentifier(), hadoopTap);
+    hadoopFlowStep.clean(conf);
+
+    // This doesn't appear to do anything in any implementation at the moment
     hadoopTap.commitResource(conf);
   }
 
+  /* WARNING: This is exceedingly brittle as it relies on cascading internals */
   private void writeToLocalTap(Tap<?, ?, ?> tap) throws IOException {
     @SuppressWarnings("unchecked")
     Tap<Properties, ?, ?> localTap = (Tap<Properties, ?, ?>) tap;
     Properties conf = new Properties();
     LocalFlowProcess flowProcess = new LocalFlowProcess(conf);
+
     // LocalStepStats instance is required for PartitionTap
     flowProcess.setStepStats(new LocalStepStats(new LocalFlowStep("writeToLocalTap:" + tap.getIdentifier(), 0),
         NullClientState.INSTANCE));
+
     localTap.sinkConfInit(flowProcess, conf);
     TupleEntryCollector collector = localTap.openForWrite(flowProcess);
     for (TupleEntry tuple : data.asTupleEntryList()) {
