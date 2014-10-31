@@ -35,6 +35,10 @@ class PipeFactory {
    * connects this as a source into the current {@link PlungerFlow}.
    */
   Pipe newInstance() {
+    if (flow.isComplete()) {
+      throw new IllegalStateException(
+          "This flow has already been executed - create all of your pipes before calling result() on any of your buckets.");
+    }
     TupleListTap tupleTap = new TupleListTap(data.getDeclaredFields(), data.getTuples());
     Pipe pipe = new Pipe(name);
     flow.getFlowDef().addSource(pipe, tupleTap);

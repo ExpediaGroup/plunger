@@ -42,21 +42,22 @@ public class Bucket extends Tap<Properties, Iterator<Tuple>, List<Tuple>> implem
   private final List<Tuple> output;
   private long lastModified;
   private boolean created = false;
-  private final PlungerFlow testFlow;
+  private final PlungerFlow flow;
 
   /**
    * Constructs a new tuple sink for the given {@link PlungerFlow}, that will capture {@link Tuple Tuples} from the
    * pipe, which must contain values consistent with the declared {@link Fields}.
    */
-  Bucket(Fields fields, Pipe pipe, PlungerFlow testFlow) {
+  Bucket(Fields fields, Pipe pipe, PlungerFlow flow) {
     super(new TupleScheme(fields));
-    if (testFlow.isComplete()) {
-      throw new IllegalStateException("Flow has already been executed.");
+    if (flow.isComplete()) {
+      throw new IllegalStateException(
+          "This flow has already been executed - create all of your buckets before calling result() on any one of them.");
     }
-    this.testFlow = testFlow;
+    this.flow = flow;
     output = new ArrayList<Tuple>();
     id = getClass().getSimpleName() + ":" + UUID.randomUUID().toString();
-    testFlow.getFlowDef().addTailSink(pipe, this);
+    flow.getFlowDef().addTailSink(pipe, this);
     modified();
   }
 
@@ -122,7 +123,7 @@ public class Bucket extends Tap<Properties, Iterator<Tuple>, List<Tuple>> implem
    * transformation.
    */
   public Data result() {
-    testFlow.completeIfRequired();
+    flow.completeIfRequired();
     return new Data(getSinkFields(), Collections.unmodifiableList(output));
   }
 

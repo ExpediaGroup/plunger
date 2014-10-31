@@ -22,10 +22,6 @@ import java.util.List;
 
 import org.junit.Test;
 
-import com.hotels.plunger.Bucket;
-import com.hotels.plunger.DataBuilder;
-import com.hotels.plunger.Plunger;
-
 import cascading.pipe.Pipe;
 import cascading.tuple.Fields;
 import cascading.tuple.Tuple;
@@ -62,6 +58,18 @@ public class IntegrationTest {
     assertThat(tupleList.size(), is(2));
     assertThat(tupleList.get(0), is(new Tuple(1, "x")));
     assertThat(tupleList.get(1), is(new Tuple(2, "y")));
+  }
+
+  @Test(expected = IllegalStateException.class)
+  public void failWhenAddingBucketAfterFlowExecution() {
+    sink.result();
+    plunger.newBucket(FIELDS, new Pipe("too late for bucket"));
+  }
+
+  @Test(expected = IllegalStateException.class)
+  public void failWhenAddingPipeAfterFlowExecution() {
+    sink.result();
+    plunger.newNamedPipe("too late for pipe", new DataBuilder(FIELDS).addTuple(1, "x").build());
   }
 
 }
