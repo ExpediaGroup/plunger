@@ -20,6 +20,7 @@ import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
@@ -31,11 +32,6 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
-
-import com.hotels.plunger.Data;
-import com.hotels.plunger.PipeFactory;
-import com.hotels.plunger.PlungerFlow;
-import com.hotels.plunger.TupleListTap;
 
 import cascading.flow.FlowDef;
 import cascading.pipe.Pipe;
@@ -79,6 +75,13 @@ public class PipeFactoryTest {
     }
     assertThat(tuples.size(), is(1));
     assertThat(tuples.get(0), is(new Tuple("value")));
+  }
+
+  @Test(expected = IllegalStateException.class)
+  public void failsIfAlreadyComplete() throws IOException {
+    when(flow.isComplete()).thenReturn(true);
+    PipeFactory pipeFactory = new PipeFactory(data, "name", flow);
+    pipeFactory.newInstance();
   }
 
 }
