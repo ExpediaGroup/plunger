@@ -28,9 +28,6 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 
-import com.hotels.plunger.Data;
-import com.hotels.plunger.TapDataReader;
-
 import cascading.tap.partition.DelimitedPartition;
 import cascading.tuple.Fields;
 import cascading.tuple.Tuple;
@@ -74,7 +71,7 @@ public class TapDataReaderTest {
 
     Data actual = new TapDataReader(partitionTap).read();
 
-    assertThat(actual, is(expected));
+    assertThat(actual.orderBy(fields).asTupleEntryList(), is(expected.orderBy(fields).asTupleEntryList()));
   }
 
   @Test
@@ -93,7 +90,7 @@ public class TapDataReaderTest {
 
     Data actual = new TapDataReader(partitionTap).read();
 
-    assertThat(actual, is(expected));
+    assertThat(actual.orderBy(fields).asTupleEntryList(), is(expected.orderBy(fields).asTupleEntryList()));
   }
 
   @Test
@@ -141,7 +138,7 @@ public class TapDataReaderTest {
 
     Data actual = new TapDataReader(partitionTap).read();
 
-    assertThat(actual, is(expected));
+    assertThat(actual.orderBy(fields).asTupleEntryList(), is(expected.orderBy(fields).asTupleEntryList()));
   }
 
   @Test
@@ -160,7 +157,7 @@ public class TapDataReaderTest {
 
     Data actual = new TapDataReader(partitionTap).read();
 
-    assertThat(actual, is(expected));
+    assertThat(actual.orderBy(fields).asTupleEntryList(), is(expected.orderBy(fields).asTupleEntryList()));
   }
 
   @Test(expected = IllegalArgumentException.class)
