@@ -9,7 +9,7 @@
 
   <groupId>com.hotels</groupId>
   <artifactId>plunger</artifactId>
-  <version>1.0.1</version>
+  <version>1.0.2-SNAPSHOT</version>
   <name>Plunger</name>
   <description>Framework to simplify testing Cascading applications</description>
   <url>https://github.com/HotelsDotCom/plunger</url>
