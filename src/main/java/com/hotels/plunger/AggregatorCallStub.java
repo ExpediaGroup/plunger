@@ -130,7 +130,7 @@ public final class AggregatorCallStub<C> extends AbstractOperationCallStub<C> im
     }
 
     /** Creates a new tuple for the current group in the stub record sequence. */
-    Builder<C> addTuple(Object... values) {
+    public Builder<C> addTuple(Object... values) {
       if (currentGroup == null) {
         throw new IllegalStateException("Must set group before adding tuples.");
       }
