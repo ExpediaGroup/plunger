@@ -25,8 +25,6 @@ import java.util.List;
 
 import org.junit.Test;
 
-import com.hotels.plunger.FunctionCallStub;
-
 import cascading.flow.FlowProcess;
 import cascading.operation.Identity;
 import cascading.operation.Insert;
@@ -57,6 +55,14 @@ public class FunctionCallStubTest {
   public void fields() {
     stub = new FunctionCallStub.Builder<String>(FIELDS).build();
     assertThat(stub.getArgumentFields(), is(FIELDS));
+    assertThat(stub.getDeclaredFields(), is(FIELDS));
+  }
+
+  @Test
+  public void argumentsFieldsIgnoreOutputFields() {
+    stub = new FunctionCallStub.Builder<String>(FIELDS).outputFields(OUTPUT).build();
+    assertThat(stub.getArgumentFields(), is(FIELDS));
+    assertThat(stub.getDeclaredFields(), is(OUTPUT));
   }
 
   @Test
@@ -125,5 +131,4 @@ public class FunctionCallStubTest {
     assertThat(actual.get(0), tupleEntry(OUTPUT, 1));
     assertThat(actual.get(1), tupleEntry(OUTPUT, 1));
   }
-
 }

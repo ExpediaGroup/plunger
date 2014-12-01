@@ -29,14 +29,15 @@ import cascading.tuple.TupleEntryCollector;
 abstract class AbstractOperationCallStub<C> implements OperationCall<C> {
 
   private C context;
-  final Fields fields;
+  private final Fields argumentFields;
+  private final Fields declaredFields;
 
   final List<TupleEntry> collected = new ArrayList<TupleEntry>();
   final TupleEntryCollector collector = new TupleEntryCollector() {
 
     @Override
     public void add(Tuple tuple) {
-      collected.add(new TupleEntry(fields, tuple));
+      collected.add(new TupleEntry(argumentFields, tuple));
     }
 
     @Override
@@ -46,8 +47,9 @@ abstract class AbstractOperationCallStub<C> implements OperationCall<C> {
     }
   };
 
-  AbstractOperationCallStub(Fields fields) {
-    this.fields = fields;
+  AbstractOperationCallStub(Fields argumentFields, Fields declaredFields) {
+    this.argumentFields = argumentFields;
+    this.declaredFields = declaredFields;
   }
 
   @Override
@@ -62,11 +64,11 @@ abstract class AbstractOperationCallStub<C> implements OperationCall<C> {
 
   @Override
   public Fields getArgumentFields() {
-    return fields;
+    return argumentFields;
   }
 
   public Fields getDeclaredFields() {
-    return fields;
+    return declaredFields;
   }
 
   public TupleEntryCollector getOutputCollector() {
@@ -82,7 +84,7 @@ abstract class AbstractOperationCallStub<C> implements OperationCall<C> {
     for (TupleEntry entry : collected) {
       output.add(entry.getTupleCopy());
     }
-    return new Data(fields, Collections.unmodifiableList(output));
+    return new Data(declaredFields, Collections.unmodifiableList(output));
   }
 
 }
