@@ -87,6 +87,14 @@ public class FunctionCallStubTest {
     assertThat(stub.result().asTupleEntryList().get(0), is(new TupleEntry(FIELDS, new Tuple(1))));
   }
 
+  @Test(expected = IllegalArgumentException.class)
+  public void collectIrregularTupleEntry() {
+    stub = new FunctionCallStub.Builder<String>(FIELDS).build();
+    assertThat(stub.result().asTupleEntryList().isEmpty(), is(true));
+
+    stub.getOutputCollector().add(new TupleEntry(new Fields("X", String.class), new Tuple(1)));
+  }
+
   @Test
   public void collectTuple() {
     stub = new FunctionCallStub.Builder<String>(FIELDS).build();
@@ -95,6 +103,14 @@ public class FunctionCallStubTest {
     stub.getOutputCollector().add(new Tuple(1));
     assertThat(stub.result().asTupleEntryList().size(), is(1));
     assertThat(stub.result().asTupleEntryList().get(0), is(new TupleEntry(FIELDS, new Tuple(1))));
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void collectIrregularTuple() {
+    stub = new FunctionCallStub.Builder<String>(FIELDS).build();
+    assertThat(stub.result().asTupleEntryList().isEmpty(), is(true));
+
+    stub.getOutputCollector().add(new Tuple(1, 2));
   }
 
   // TODO: test withFields()

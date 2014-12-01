@@ -102,6 +102,22 @@ public class BufferCallStubTest {
     assertThat(stub.getDeclaredFields(), is(OUTPUT));
   }
 
+  @Test(expected = IllegalArgumentException.class)
+  public void collectIrregularTupleEntry() {
+    AggregatorCallStub<String> stub = new AggregatorCallStub.Builder<String>(GROUP_FIELDS, NON_GROUP_FIELDS).build();
+    assertThat(stub.result().asTupleEntryList().isEmpty(), is(true));
+
+    stub.getOutputCollector().add(new TupleEntry(new Fields("X", String.class), new Tuple(1)));
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void collectIrregularTuple() {
+    BufferCallStub<String> stub = new BufferCallStub.Builder<String>(GROUP_FIELDS, NON_GROUP_FIELDS).build();
+    assertThat(stub.result().asTupleEntryList().isEmpty(), is(true));
+
+    stub.getOutputCollector().add(new Tuple(1, 2));
+  }
+
   static class CountBuffer extends BaseOperation<Void> implements Buffer<Void> {
     private static final long serialVersionUID = 1L;
 

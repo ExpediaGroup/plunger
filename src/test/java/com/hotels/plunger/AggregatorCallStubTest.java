@@ -107,6 +107,14 @@ public class AggregatorCallStubTest {
     assertThat(stub.result().asTupleEntryList().get(0), is(new TupleEntry(NON_GROUP_FIELDS, new Tuple(1))));
   }
 
+  @Test(expected = IllegalArgumentException.class)
+  public void collectIrregularTupleEntry() {
+    stub = new AggregatorCallStub.Builder<String>(GROUP_FIELDS, NON_GROUP_FIELDS).build();
+    assertThat(stub.result().asTupleEntryList().isEmpty(), is(true));
+
+    stub.getOutputCollector().add(new TupleEntry(new Fields("X", String.class), new Tuple(1)));
+  }
+
   @Test
   public void collectTuple() {
     stub = new AggregatorCallStub.Builder<String>(GROUP_FIELDS, NON_GROUP_FIELDS).build();
@@ -115,6 +123,14 @@ public class AggregatorCallStubTest {
     stub.getOutputCollector().add(new Tuple(1));
     assertThat(stub.result().asTupleEntryList().size(), is(1));
     assertThat(stub.result().asTupleEntryList().get(0), is(new TupleEntry(NON_GROUP_FIELDS, new Tuple(1))));
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void collectIrregularTuple() {
+    stub = new AggregatorCallStub.Builder<String>(GROUP_FIELDS, NON_GROUP_FIELDS).build();
+    assertThat(stub.result().asTupleEntryList().isEmpty(), is(true));
+
+    stub.getOutputCollector().add(new Tuple(1, 2));
   }
 
   @Test

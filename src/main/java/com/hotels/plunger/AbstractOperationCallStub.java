@@ -37,13 +37,19 @@ abstract class AbstractOperationCallStub<C> implements OperationCall<C> {
 
     @Override
     public void add(Tuple tuple) {
-      collected.add(new TupleEntry(argumentFields, tuple));
+      if (tuple.size() != getDeclaredFields().size()) {
+        throw new IllegalArgumentException("Tuple size != declared fields size: " + tuple + ", " + getDeclaredFields());
+      }
+      collected.add(new TupleEntry(getDeclaredFields(), tuple));
     }
 
     @Override
     protected void collect(TupleEntry tupleEntry) throws IOException {
+      if (!tupleEntry.getFields().equals(getDeclaredFields())) {
+        throw new IllegalArgumentException("Collected fields != declared fields: " + tupleEntry.getFields() + ", "
+            + getDeclaredFields());
+      }
       collected.add(tupleEntry);
-
     }
   };
 
