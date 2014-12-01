@@ -27,8 +27,6 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import com.hotels.plunger.AggregatorCallStub;
-
 import cascading.flow.FlowProcess;
 import cascading.operation.aggregator.First;
 import cascading.operation.aggregator.MaxValue;
@@ -76,6 +74,14 @@ public class AggregatorCallStubTest {
   public void fields() {
     stub = new AggregatorCallStub.Builder<String>(GROUP_FIELDS, NON_GROUP_FIELDS).build();
     assertThat(stub.getArgumentFields(), is(NON_GROUP_FIELDS));
+    assertThat(stub.getDeclaredFields(), is(NON_GROUP_FIELDS));
+  }
+
+  @Test
+  public void argumentsFieldsIgnoreOutputFields() {
+    stub = new AggregatorCallStub.Builder<String>(GROUP_FIELDS, NON_GROUP_FIELDS).outputFields(OUTPUT_FIELDS).build();
+    assertThat(stub.getArgumentFields(), is(NON_GROUP_FIELDS));
+    assertThat(stub.getDeclaredFields(), is(OUTPUT_FIELDS));
   }
 
   @Test

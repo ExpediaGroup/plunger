@@ -27,8 +27,6 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import com.hotels.plunger.BufferCallStub;
-
 import cascading.flow.FlowProcess;
 import cascading.operation.BaseOperation;
 import cascading.operation.Buffer;
@@ -86,6 +84,22 @@ public class BufferCallStubTest {
     assertThat(actual.get(1), tupleEntry(OUTPUT, 2));
     assertThat(actual.get(2), tupleEntry(OUTPUT, 1));
     assertThat(actual.get(3), tupleEntry(OUTPUT, 2));
+  }
+
+  @Test
+  public void fields() {
+    BufferCallStub<Void> stub = new BufferCallStub.Builder<Void>(GROUP_FIELDS, NON_GROUP_FIELDS).build();
+    assertThat(stub.getArgumentFields(), is(NON_GROUP_FIELDS));
+    assertThat(stub.getDeclaredFields(), is(NON_GROUP_FIELDS));
+  }
+
+  @Test
+  public void argumentsFieldsIgnoreOutputFields() {
+    BufferCallStub<Void> stub = new BufferCallStub.Builder<Void>(GROUP_FIELDS, NON_GROUP_FIELDS)
+        .outputFields(OUTPUT)
+        .build();
+    assertThat(stub.getArgumentFields(), is(NON_GROUP_FIELDS));
+    assertThat(stub.getDeclaredFields(), is(OUTPUT));
   }
 
   static class CountBuffer extends BaseOperation<Void> implements Buffer<Void> {

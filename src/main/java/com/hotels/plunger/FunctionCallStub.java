@@ -40,8 +40,8 @@ public final class FunctionCallStub<C> extends AbstractOperationCallStub<C> impl
 
   private TupleEntry currentArguments;
 
-  private FunctionCallStub(Fields fields, Iterable<TupleEntry> arguments) {
-    super(fields);
+  private FunctionCallStub(Fields argumentFields, Fields declaredFields, Iterable<TupleEntry> arguments) {
+    super(argumentFields, declaredFields);
     this.arguments = arguments.iterator();
   }
 
@@ -116,7 +116,7 @@ public final class FunctionCallStub<C> extends AbstractOperationCallStub<C> impl
 
     public FunctionCallStub<C> build() {
       Fields newFields = outputFields != null ? outputFields : fields;
-      return new FunctionCallStub<C>(newFields, tuples);
+      return new FunctionCallStub<C>(fields, newFields, tuples);
     }
 
   }

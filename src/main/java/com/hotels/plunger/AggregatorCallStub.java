@@ -44,8 +44,8 @@ public final class AggregatorCallStub<C> extends AbstractOperationCallStub<C> im
   private TupleEntry currentArguments;
   private TupleEntry currentGroup;
 
-  private AggregatorCallStub(Fields fields, Map<TupleEntry, List<TupleEntry>> map) {
-    super(fields);
+  private AggregatorCallStub(Fields argumentFields, Fields declaredFields, Map<TupleEntry, List<TupleEntry>> map) {
+    super(argumentFields, declaredFields);
     groupsIterator = map.entrySet().iterator();
   }
 
@@ -147,7 +147,7 @@ public final class AggregatorCallStub<C> extends AbstractOperationCallStub<C> im
     public AggregatorCallStub<C> build() {
       Fields fields = outputFields != null ? outputFields : nonGroupFields;
       flush();
-      return new AggregatorCallStub<C>(fields, map);
+      return new AggregatorCallStub<C>(nonGroupFields, fields, map);
     }
 
     private void flush() {

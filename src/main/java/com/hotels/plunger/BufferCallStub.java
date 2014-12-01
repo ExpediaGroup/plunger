@@ -44,8 +44,8 @@ public final class BufferCallStub<C> extends AbstractOperationCallStub<C> implem
   private TupleEntry currentGroup;
   private boolean retainValues;
 
-  private BufferCallStub(Fields fields, Map<TupleEntry, List<TupleEntry>> map) {
-    super(fields);
+  private BufferCallStub(Fields argumentFields, Fields declaredFields, Map<TupleEntry, List<TupleEntry>> map) {
+    super(argumentFields, declaredFields);
     groupsIterator = map.entrySet().iterator();
   }
 
@@ -163,7 +163,7 @@ public final class BufferCallStub<C> extends AbstractOperationCallStub<C> implem
         fields = nonGroupFields;
       }
       flush();
-      return new BufferCallStub<C>(fields, map);
+      return new BufferCallStub<C>(nonGroupFields, fields, map);
     }
 
   }
