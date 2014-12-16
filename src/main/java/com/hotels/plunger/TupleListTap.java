@@ -61,7 +61,8 @@ class TupleListTap extends Tap<Properties, Iterator<Tuple>, List<Tuple>> {
    * Returned type is a {@link ListTupleEntryIterator}.
    */
   @Override
-  public TupleEntryIterator openForRead(FlowProcess<Properties> flowProcess, Iterator<Tuple> input) throws IOException {
+  public TupleEntryIterator openForRead(FlowProcess<? extends Properties> flowProcess, Iterator<Tuple> input)
+    throws IOException {
     return new ListTupleEntryIterator(getSourceFields(), this.input);
   }
 
@@ -71,7 +72,8 @@ class TupleListTap extends Tap<Properties, Iterator<Tuple>, List<Tuple>> {
    * @throws UnsupportedOperationException always.
    */
   @Override
-  public TupleEntryCollector openForWrite(FlowProcess<Properties> flowProcess, List<Tuple> output) throws IOException {
+  public TupleEntryCollector openForWrite(FlowProcess<? extends Properties> flowProcess, List<Tuple> output)
+    throws IOException {
     throw new UnsupportedOperationException("cannot write to a " + getClass().getSimpleName());
   }
 

@@ -28,6 +28,8 @@ import cascading.tuple.FieldsResolverException;
 import cascading.tuple.Tuple;
 import cascading.tuple.TupleEntry;
 import cascading.tuple.Tuples;
+import cascading.tuple.coerce.Coercions;
+import cascading.tuple.type.CoercibleType;
 
 /**
  * Convenience class for building {@link Tuple} based input data for {@link PlungerFlow} based cascading unit tests.
@@ -182,10 +184,11 @@ public class DataBuilder {
   private void flushTupleEntry() {
     if (tupleEntry != null) {
       if (types != null) {
-        tupleEntry.setTuple(Tuples.coerce(tupleEntry.selectTuple(fields), types));
+        CoercibleType<?>[] coercions = Coercions.coercibleArray(types.length, types);
+        Object[] values = Tuples.asArray(tupleEntry.selectTuple(fields), coercions, types, new Object[types.length]);
+        tupleEntry.setTuple(new Tuple(values));
       }
       list.add(tupleEntry.getTuple());
     }
   }
-
 }

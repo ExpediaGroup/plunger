@@ -79,27 +79,6 @@ public class TapDataWriterTest {
     assertThat(writtenY, is("2\tworld\n"));
   }
 
-  @SuppressWarnings("deprecation")
-  @Test
-  public void writeLocalTemplate() throws IOException {
-    File tsvFolder = temporaryFolder.newFolder("data");
-    cascading.tap.local.TemplateTap templateTap = new cascading.tap.local.TemplateTap(new cascading.tap.local.FileTap(
-        new cascading.scheme.local.TextDelimited(valueFields), tsvFolder.getAbsolutePath()), "%s", partitionFields);
-    Tap<?, ?, ?> returnedTap = new TapDataWriter(data).toTap(templateTap);
-
-    assertThat((cascading.tap.local.TemplateTap) returnedTap, is(templateTap));
-
-    File tsvFileX = new File(tsvFolder, "X");
-    String writtenX = FileUtils.readFileToString(tsvFileX, Charset.forName("UTF-8"));
-
-    assertThat(writtenX, is("1\thello\n"));
-
-    File tsvFileY = new File(tsvFolder, "Y");
-    String writtenY = FileUtils.readFileToString(tsvFileY, Charset.forName("UTF-8"));
-
-    assertThat(writtenY, is("2\tworld\n"));
-  }
-
   @Test
   public void writeHfs() throws IOException {
     File tsvFolder = temporaryFolder.newFolder("data");
@@ -131,29 +110,6 @@ public class TapDataWriterTest {
     assertThat(writtenX, is("1\thello\n"));
 
     File tsvFileY = new File(new File(tsvFolder, "Y"), "part-00000-00001");
-    String writtenY = FileUtils.readFileToString(tsvFileY, Charset.forName("UTF-8"));
-
-    assertThat(writtenY, is("2\tworld\n"));
-
-    assertThat(new File(tsvFolder, Hadoop18TapUtil.TEMPORARY_PATH).exists(), is(false));
-  }
-
-  @SuppressWarnings("deprecation")
-  @Test
-  public void writeHadoopTemplate() throws IOException {
-    File tsvFolder = temporaryFolder.newFolder("data");
-    cascading.tap.hadoop.TemplateTap partitionTap = new cascading.tap.hadoop.TemplateTap(new cascading.tap.hadoop.Hfs(
-        new cascading.scheme.hadoop.TextDelimited(valueFields), tsvFolder.getAbsolutePath()), "%s", partitionFields);
-    Tap<?, ?, ?> returnedTap = new TapDataWriter(data).toTap(partitionTap);
-
-    assertThat((cascading.tap.hadoop.TemplateTap) returnedTap, is(partitionTap));
-
-    File tsvFileX = new File(new File(tsvFolder, "X"), "part-00000");
-    String writtenX = FileUtils.readFileToString(tsvFileX, Charset.forName("UTF-8"));
-
-    assertThat(writtenX, is("1\thello\n"));
-
-    File tsvFileY = new File(new File(tsvFolder, "Y"), "part-00000");
     String writtenY = FileUtils.readFileToString(tsvFileY, Charset.forName("UTF-8"));
 
     assertThat(writtenY, is("2\tworld\n"));

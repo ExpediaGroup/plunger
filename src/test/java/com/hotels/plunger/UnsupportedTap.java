@@ -39,12 +39,12 @@ class UnsupportedTap extends Tap<String, Long, Integer> {
   }
 
   @Override
-  public TupleEntryIterator openForRead(FlowProcess<String> flowProcess, Long input) throws IOException {
+  public TupleEntryIterator openForRead(FlowProcess<? extends String> flowProcess, Long input) throws IOException {
     return null;
   }
 
   @Override
-  public TupleEntryCollector openForWrite(FlowProcess<String> flowProcess, Integer output) throws IOException {
+  public TupleEntryCollector openForWrite(FlowProcess<? extends String> flowProcess, Integer output) throws IOException {
     return null;
   }
 
@@ -67,5 +67,4 @@ class UnsupportedTap extends Tap<String, Long, Integer> {
   public long getModifiedTime(String conf) throws IOException {
     return 0;
   }
-
 }

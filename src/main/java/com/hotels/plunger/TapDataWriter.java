@@ -18,18 +18,11 @@ package com.hotels.plunger;
 import java.io.IOException;
 import java.util.Properties;
 
+import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.mapred.JobConf;
 
-import cascading.cascade.Cascade;
-import cascading.flow.Flow;
-import cascading.flow.FlowStep;
 import cascading.flow.hadoop.HadoopFlowProcess;
-import cascading.flow.hadoop.HadoopFlowStep;
 import cascading.flow.local.LocalFlowProcess;
-import cascading.flow.local.LocalFlowStep;
-import cascading.management.state.ClientState;
-import cascading.stats.CascadingStats;
-import cascading.stats.local.LocalStepStats;
 import cascading.tap.Tap;
 import cascading.tuple.Tuple;
 import cascading.tuple.TupleEntry;
@@ -51,7 +44,7 @@ public class TapDataWriter {
   /** Writes the {@link Tuple Tuples} provided in the {@link Data} instance to the supplied {@link Tap}. */
   public Tap<?, ?, ?> toTap(Tap<?, ?, ?> tap) throws IOException {
     Class<?> tapConfigClass = TapTypeUtil.getTapConfigClass(tap);
-    if (JobConf.class.equals(tapConfigClass)) {
+    if (Configuration.class.equals(tapConfigClass)) {
       writeToHadoopTap(tap);
     } else if (Properties.class.equals(tapConfigClass)) {
       writeToLocalTap(tap);
@@ -68,7 +61,7 @@ public class TapDataWriter {
     JobConf conf = new JobConf();
 
     // In Hadoop18TapUtil#cleanupJob() we don't want the '_temporary' folder to be deleted on collector.close()
-    conf.setInt("cascading.flow.step", 1);
+    // conf.setInt("cascading.flow.step", 1);
 
     HadoopFlowProcess flowProcess = new HadoopFlowProcess(conf);
     hadoopTap.sinkConfInit(flowProcess, conf);
@@ -79,10 +72,9 @@ public class TapDataWriter {
     collector.close();
 
     // We need to clean up the '_temporary' folder - apparently the flow step does this - so we do this here
-    HadoopFlowStep hadoopFlowStep = new HadoopFlowStep("writeToHadoopTap:" + hadoopTap.getIdentifier(), 1);
-    hadoopFlowStep.addSink("writeToHadoopTap:sink:" + hadoopTap.getIdentifier(), hadoopTap);
-    hadoopFlowStep.clean(conf);
-
+    // HadoopFlowStep hadoopFlowStep = new HadoopFlowStep("writeToHadoopTap:" + hadoopTap.getIdentifier(), 1);
+    // hadoopFlowStep.addSink("writeToHadoopTap:sink:" + hadoopTap.getIdentifier(), hadoopTap);
+    // hadoopFlowStep.clean(conf);
     // This doesn't appear to do anything in any implementation at the moment
     hadoopTap.commitResource(conf);
   }
@@ -95,8 +87,9 @@ public class TapDataWriter {
     LocalFlowProcess flowProcess = new LocalFlowProcess(conf);
 
     // LocalStepStats instance is required for PartitionTap
-    flowProcess.setStepStats(new LocalStepStats(new LocalFlowStep("writeToLocalTap:" + tap.getIdentifier(), 0),
-        NullClientState.INSTANCE));
+    // flowProcess.setStepStats(new LocalStepStats(new LocalFlowStep("writeToLocalTap:" + tap.getIdentifier(), 0),
+    // NullClientState.INSTANCE));
+    // flowProcess.setStepStats(new LocalStepStats(new LocalFlowStep(null, null), NullClientState.INSTANCE));
 
     localTap.sinkConfInit(flowProcess, conf);
     TupleEntryCollector collector = localTap.openForWrite(flowProcess);
@@ -107,27 +100,31 @@ public class TapDataWriter {
     localTap.commitResource(conf);
   }
 
-  private static class NullClientState extends ClientState {
-    private static NullClientState INSTANCE = new NullClientState();
-
-    private NullClientState() {
-    }
-
-    @Override
-    public void recordStats(CascadingStats stats) {
-    }
-
-    @Override
-    public void recordFlowStep(@SuppressWarnings("rawtypes") FlowStep flowStep) {
-    }
-
-    @Override
-    public void recordFlow(@SuppressWarnings("rawtypes") Flow flow) {
-    }
-
-    @Override
-    public void recordCascade(Cascade cascade) {
-    }
-  }
+  // private static class NullClientState extends ClientState {
+  // private static NullClientState INSTANCE = new NullClientState();
+  //
+  // private NullClientState() {
+  // }
+  //
+  // @Override
+  // public void recordStats(@SuppressWarnings("rawtypes") CascadingStats stats) {
+  // }
+  //
+  // @Override
+  // public void recordFlowStep(@SuppressWarnings("rawtypes") FlowStep flowStep) {
+  // }
+  //
+  // @Override
+  // public void recordFlow(@SuppressWarnings("rawtypes") Flow flow) {
+  // }
+  //
+  // @Override
+  // public void recordCascade(Cascade cascade) {
+  // }
+  //
+  // @Override
+  // public void recordFlowNode(FlowNode flowNode) {
+  // }
+  // }
 
 }

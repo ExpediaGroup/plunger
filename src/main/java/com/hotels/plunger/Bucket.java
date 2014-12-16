@@ -63,11 +63,12 @@ public class Bucket extends Tap<Properties, Iterator<Tuple>, List<Tuple>> implem
 
   /**
    * Always throws {@link UnsupportedOperationException} - this is a sink not a tap.
-   * 
+   *
    * @throws UnsupportedOperationException always.
    */
   @Override
-  public TupleEntryIterator openForRead(FlowProcess<Properties> flowProcess, Iterator<Tuple> input) throws IOException {
+  public TupleEntryIterator openForRead(FlowProcess<? extends Properties> flowProcess, Iterator<Tuple> input)
+      throws IOException {
     throw new UnsupportedOperationException("cannot read from a " + getClass().getSimpleName());
   }
 
@@ -77,7 +78,8 @@ public class Bucket extends Tap<Properties, Iterator<Tuple>, List<Tuple>> implem
    * Returned type is a {@link ListTupleEntryCollector}.
    */
   @Override
-  public TupleEntryCollector openForWrite(FlowProcess<Properties> flowProcess, List<Tuple> output) throws IOException {
+  public TupleEntryCollector openForWrite(FlowProcess<? extends Properties> flowProcess, List<Tuple> output)
+      throws IOException {
     return new ListTupleEntryCollector(this.output, this);
   }
 
@@ -142,5 +144,4 @@ public class Bucket extends Tap<Properties, Iterator<Tuple>, List<Tuple>> implem
     builder.append("]");
     return builder.toString();
   }
-
 }
