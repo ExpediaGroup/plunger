@@ -4,6 +4,10 @@
 .project
 .springBeans
 
+# Idea files
+.idea
+*.iml
+
 # Netbeans files
 nbactions.xml
 
@@ -18,3 +22,9 @@ bin/
 
 # MAC stuff
 .DS_Store
+
+# Backup files
+.\#*
+.*\#
+\#*\#
+*~
