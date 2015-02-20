@@ -90,6 +90,7 @@ public class TapDataWriterTest {
     String written = FileUtils.readFileToString(new File(tsvFolder, "part-00000"), Charset.forName("UTF-8"));
 
     assertThat(written, is("X\t1\thello\nY\t2\tworld\n"));
+    assertThat(new File(tsvFolder, Hadoop18TapUtil.TEMPORARY_PATH).exists(), is(false));
   }
 
   @Test
