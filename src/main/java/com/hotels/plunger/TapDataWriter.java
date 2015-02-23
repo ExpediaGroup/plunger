@@ -100,7 +100,8 @@ public class TapDataWriter {
     BasePartitionTap<JobConf, ?, ?> hadoopTap = (BasePartitionTap<JobConf, ?, ?>) tap;
     JobConf conf = new JobConf();
 
-    // Avoids deletion of results when using a partition tap
+    // Avoids deletion of results when using a partition tap (close() will delete the _temporary before the copy has
+    // been done if not in a flow)
     HadoopUtil.setIsInflow(conf);
 
     HadoopFlowProcess flowProcess = new HadoopFlowProcess(conf);
@@ -172,6 +173,7 @@ public class TapDataWriter {
     }
   }
 
+  @SuppressWarnings("rawtypes")
   private static class NullFlowStep implements FlowStep<Properties> {
 
     @Override
