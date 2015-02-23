@@ -10,6 +10,7 @@ You can obtain **plunger** from Maven Central using the following identifier:
 * [com.hotels:plunger:2.0.0 (supporting cascading 3.x versions)](http://search.maven.org/#artifactdetails%7Ccom.hotels%7Cplunger%7C2.0.0%7Cjar)
 * [com.hotels:plunger:1.0.4 (supporting cascading 2.x versions)](http://search.maven.org/#artifactdetails%7Ccom.hotels%7Cplunger%7C1.0.4%7Cjar)
 
+
 #Overview
 **plunger** is a unit testing framework for the [cascading platform](http://cascading.org "Cascading Application Platform homepage"). It helps you write small and fast unit tests for your ``Assemblies`` with fined grained assertions. A fluent API allows you to rapidly construct test data for delivery via ``Data`` instances and then make assertions on the data captured by ``Buckets``. All test data is maintained in memory to avoid unnecessary I/O overhead. Utility methods are provided as a bridge between input/output files and their in-memory equivalents so that the same style of testing can be applied to ``Flows`` and ``Cascades``.
 #Testing Assemblies
@@ -145,7 +146,7 @@ This project uses the [Maven](http://maven.apache.org/) build system. It also na
 #Dependencies
 Plunger expects the following dependencies to be provided:
 
-* Cascading SDK ≥ 2.6.1-wip-44
+* Cascading SDK ≥ 2.6.1
 * Hadoop ≥ 2.4.0.2.1.3.0-563
 * JUnit ≥ 4.11
 * Hamcrest core ≥ 1.3
@@ -159,4 +160,4 @@ Created by [Elliot West](https://github.com/teabot), with thanks to: Dave Maugha
 #Legal
 This project is available under the [Apache 2.0 License](http://www.apache.org/licenses/LICENSE-2.0.html).
 
-Copyright 2014 Expedia Inc.
+Copyright 2015 Expedia Inc.
