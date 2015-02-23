@@ -158,4 +158,4 @@ Created by [Elliot West](https://github.com/teabot), with thanks to: Dave Maugha
 #Legal
 This project is available under the [Apache 2.0 License](http://www.apache.org/licenses/LICENSE-2.0.html).
 
-Copyright 2014 Expedia Inc.
+Copyright 2015 Expedia Inc.
