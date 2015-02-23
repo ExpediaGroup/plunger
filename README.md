@@ -144,7 +144,7 @@ This project uses the [Maven](http://maven.apache.org/) build system. It also na
 #Dependencies
 Plunger expects the following dependencies to be provided:
 
-* Cascading SDK ≥ 2.6.1-wip-44
+* Cascading SDK ≥ 2.6.1
 * Hadoop ≥ 2.4.0.2.1.3.0-563
 * JUnit ≥ 4.11
 * Hamcrest core ≥ 1.3
