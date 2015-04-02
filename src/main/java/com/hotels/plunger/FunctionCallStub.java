@@ -91,11 +91,7 @@ public final class FunctionCallStub<C> extends AbstractOperationCallStub<C> impl
     }
 
     public Builder<C> addTuple(Object... values) {
-      if (values == null || values.length == 0) {
-        values = new Object[fieldMask.size()];
-      } else if (values.length != fieldMask.size()) {
-        throw new IllegalStateException("Value array length not suitable for field mask: " + fieldMask);
-      }
+      values = FieldTypeValidator.validateValues(fieldMask, values);
       TupleEntry newTuple = new TupleEntry(fields, Tuple.size(fields.size()));
       newTuple.setTuple(fieldMask, new Tuple(values));
       tuples.add(newTuple);
