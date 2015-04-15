@@ -22,6 +22,7 @@ import java.util.Properties;
 import java.util.UUID;
 
 import cascading.flow.FlowProcess;
+import cascading.pipe.Pipe;
 import cascading.tap.Tap;
 import cascading.tuple.Fields;
 import cascading.tuple.Tuple;
@@ -31,7 +32,7 @@ import cascading.tuple.TupleEntryIterator;
 /**
  * A {@link Tap} implementation for sourcing {@link Tuple} instances in a unit testing environment.
  */
-class TupleListTap extends Tap<Properties, Iterator<Tuple>, List<Tuple>> {
+public class TupleListTap extends Tap<Properties, Iterator<Tuple>, List<Tuple>> {
 
   private static final long serialVersionUID = 1L;
 

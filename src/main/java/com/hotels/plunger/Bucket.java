@@ -61,6 +61,14 @@ public class Bucket extends Tap<Properties, Iterator<Tuple>, List<Tuple>> implem
     modified();
   }
 
+  Bucket() {
+    super(new TupleScheme(Fields.UNKNOWN, Fields.ALL));
+    this.flow = null;
+    output = new ArrayList<Tuple>();
+    id = getClass().getSimpleName() + ":" + UUID.randomUUID().toString();
+    modified();
+  }
+
   /**
    * Always throws {@link UnsupportedOperationException} - this is a sink not a tap.
    * 
@@ -123,7 +131,9 @@ public class Bucket extends Tap<Properties, Iterator<Tuple>, List<Tuple>> implem
    * transformation.
    */
   public Data result() {
-    flow.completeIfRequired();
+    if (flow != null) {
+      flow.completeIfRequired();
+    }
     return new Data(getSinkFields(), Collections.unmodifiableList(output));
   }
 
