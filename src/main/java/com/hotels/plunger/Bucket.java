@@ -61,7 +61,10 @@ public class Bucket extends Tap<Properties, Iterator<Tuple>, List<Tuple>> implem
     modified();
   }
 
-  Bucket() {
+  /**
+   * Create a sink tap that will accept any incoming fields.
+   */
+  public Bucket() {
     super(new TupleScheme(Fields.UNKNOWN, Fields.ALL));
     this.flow = null;
     output = new ArrayList<Tuple>();
