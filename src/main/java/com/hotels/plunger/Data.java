@@ -138,4 +138,12 @@ public class Data {
     return prettyPrinter().toString();
   }
 
+  /**
+   * Create a tap that contains the tuples in this instance.
+   * @return a source tap
+   */
+  public TupleListTap toTap() {
+    return new TupleListTap(declaredFields, tuples);
+  }
+
 }

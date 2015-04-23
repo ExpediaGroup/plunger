@@ -44,6 +44,11 @@ class TupleScheme extends Scheme<Properties, Iterator<Tuple>, List<Tuple>, Void,
   }
 
   /** {@inheritDoc} */
+  TupleScheme(Fields sourceFields, Fields sinkFields) {
+    super(sourceFields, sinkFields);
+  }
+
+  /** {@inheritDoc} */
   @Override
   public void sourceConfInit(FlowProcess<Properties> flowProcess, Tap<Properties, Iterator<Tuple>, List<Tuple>> tap,
       Properties conf) {
