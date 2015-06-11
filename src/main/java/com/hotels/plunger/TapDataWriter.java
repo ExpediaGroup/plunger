@@ -336,5 +336,10 @@ public class TapDataWriter {
       return false;
     }
 
+    @Override
+    public Map<Object, Object> getConfigAsProperties() {
+      return null;
+    }
+
   }
 }
