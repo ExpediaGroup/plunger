@@ -19,12 +19,10 @@ import static org.junit.Assert.assertEquals;
 
 import java.util.Properties;
 
-import org.apache.hadoop.mapred.JobConf;
+import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.mapred.OutputCollector;
 import org.apache.hadoop.mapred.RecordReader;
 import org.junit.Test;
-
-import com.hotels.plunger.TapTypeUtil;
 
 import cascading.scheme.Scheme;
 import cascading.tap.partition.DelimitedPartition;
@@ -51,13 +49,13 @@ public class TapTypeUtilTest {
   public void hadoopHfsTap() {
     Class<?> tapType = TapTypeUtil.getTapConfigClass(new cascading.tap.hadoop.Hfs(
         new cascading.scheme.hadoop.TextDelimited(), ""));
-    assertEquals(JobConf.class, tapType);
+    assertEquals(Configuration.class, tapType);
   }
 
   @Test
   public void multiLevelHierarchy() {
     Class<?> tapType = TapTypeUtil.getTapConfigClass(new TestHfs(new cascading.scheme.hadoop.TextDelimited(), ""));
-    assertEquals(JobConf.class, tapType);
+    assertEquals(Configuration.class, tapType);
   }
 
   @Test
@@ -65,7 +63,7 @@ public class TapTypeUtilTest {
     Class<?> tapType = TapTypeUtil.getTapConfigClass(new cascading.tap.hadoop.PartitionTap(
         new cascading.tap.hadoop.Hfs(new cascading.scheme.hadoop.TextDelimited(), ""), new DelimitedPartition(
             new Fields("A"))));
-    assertEquals(JobConf.class, tapType);
+    assertEquals(Configuration.class, tapType);
   }
 
   @SuppressWarnings({ "rawtypes", "unchecked" })
@@ -73,7 +71,7 @@ public class TapTypeUtilTest {
   public void compositeHadoopTap() {
     Class<?> tapType = TapTypeUtil.getTapConfigClass(new cascading.tap.MultiSourceTap(new cascading.tap.hadoop.Hfs(
         new cascading.scheme.hadoop.TextDelimited(), "")));
-    assertEquals(JobConf.class, tapType);
+    assertEquals(Configuration.class, tapType);
   }
 
   @SuppressWarnings({ "rawtypes", "unchecked" })
@@ -88,7 +86,7 @@ public class TapTypeUtilTest {
 
     private static final long serialVersionUID = 1L;
 
-    private TestHfs(@SuppressWarnings("rawtypes") Scheme<JobConf, RecordReader, OutputCollector, ?, ?> scheme,
+    private TestHfs(@SuppressWarnings("rawtypes") Scheme<Configuration, RecordReader, OutputCollector, ?, ?> scheme,
         String stringPath) {
       super(scheme, stringPath);
     }

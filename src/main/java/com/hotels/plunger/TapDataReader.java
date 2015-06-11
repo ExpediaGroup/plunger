@@ -21,6 +21,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Properties;
 
+import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.mapred.JobConf;
 
 import cascading.flow.FlowProcess;
@@ -51,7 +52,7 @@ class TapDataReader {
     TupleEntryIterator tuples;
     Class<?> tapConfigClass = TapTypeUtil.getTapConfigClass(source);
 
-    if (JobConf.class.equals(tapConfigClass)) {
+    if (Configuration.class.equals(tapConfigClass)) {
       tuples = getHadoopTupleEntryIterator();
     } else if (Properties.class.equals(tapConfigClass)) {
       tuples = getLocalTupleEntryIterator();

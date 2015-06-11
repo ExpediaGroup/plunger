@@ -28,6 +28,8 @@ import cascading.tuple.FieldsResolverException;
 import cascading.tuple.Tuple;
 import cascading.tuple.TupleEntry;
 import cascading.tuple.Tuples;
+import cascading.tuple.coerce.Coercions;
+import cascading.tuple.type.CoercibleType;
 
 /**
  * Convenience class for building {@link Tuple} based input data for {@link PlungerFlow} based cascading unit tests.
@@ -130,9 +132,7 @@ public class DataBuilder {
 
   /**
    * Sets the value by field in the current {@link Tuple}. The field specified can be the {@link Fields} instance, the
-   * field name, or the field position.
-   *
-   * See also the {@link ServiceLoader} for more information on this.
+   * field name, or the field position. See also the {@link ServiceLoader} for more information on this.
    */
   public DataBuilder set(Comparable<?> field, Object value) {
     if (tupleEntry == null) {
@@ -182,7 +182,9 @@ public class DataBuilder {
   private void flushTupleEntry() {
     if (tupleEntry != null) {
       if (types != null) {
-        tupleEntry.setTuple(Tuples.coerce(tupleEntry.selectTuple(fields), types));
+        CoercibleType<?>[] coercions = Coercions.coercibleArray(types.length, types);
+        Object[] values = Tuples.asArray(tupleEntry.selectTuple(fields), coercions, types, new Object[types.length]);
+        tupleEntry.setTuple(new Tuple(values));
       }
       list.add(tupleEntry.getTuple());
     }
@@ -190,6 +192,7 @@ public class DataBuilder {
 
   /**
    * Create a tap that contains the tuples in this builder.
+   * 
    * @return a source tap
    */
   public TupleListTap toTap() {

@@ -16,21 +16,35 @@
 package com.hotels.plunger;
 
 import java.io.IOException;
+import java.util.Collection;
+import java.util.Map;
 import java.util.Properties;
+import java.util.Set;
 
+import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.fs.FileSystem;
+import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.mapred.JobConf;
 
 import cascading.cascade.Cascade;
 import cascading.flow.Flow;
+import cascading.flow.FlowElement;
+import cascading.flow.FlowNode;
 import cascading.flow.FlowStep;
+import cascading.flow.FlowStepListener;
 import cascading.flow.hadoop.HadoopFlowProcess;
-import cascading.flow.hadoop.HadoopFlowStep;
+import cascading.flow.hadoop.util.HadoopUtil;
 import cascading.flow.local.LocalFlowProcess;
-import cascading.flow.local.LocalFlowStep;
+import cascading.flow.planner.graph.ElementGraph;
+import cascading.flow.planner.process.FlowNodeGraph;
 import cascading.management.state.ClientState;
+import cascading.pipe.Group;
 import cascading.stats.CascadingStats;
+import cascading.stats.FlowStepStats;
 import cascading.stats.local.LocalStepStats;
 import cascading.tap.Tap;
+import cascading.tap.hadoop.util.Hadoop18TapUtil;
+import cascading.tap.partition.BasePartitionTap;
 import cascading.tuple.Tuple;
 import cascading.tuple.TupleEntry;
 import cascading.tuple.TupleEntryCollector;
@@ -51,8 +65,12 @@ public class TapDataWriter {
   /** Writes the {@link Tuple Tuples} provided in the {@link Data} instance to the supplied {@link Tap}. */
   public Tap<?, ?, ?> toTap(Tap<?, ?, ?> tap) throws IOException {
     Class<?> tapConfigClass = TapTypeUtil.getTapConfigClass(tap);
-    if (JobConf.class.equals(tapConfigClass)) {
-      writeToHadoopTap(tap);
+    if (Configuration.class.equals(tapConfigClass)) {
+      if (tap instanceof BasePartitionTap) {
+        writeToHadoopPartitionTap(tap);
+      } else {
+        writeToHadoopTap(tap);
+      }
     } else if (Properties.class.equals(tapConfigClass)) {
       writeToLocalTap(tap);
     } else {
@@ -67,8 +85,24 @@ public class TapDataWriter {
     Tap<JobConf, ?, ?> hadoopTap = (Tap<JobConf, ?, ?>) tap;
     JobConf conf = new JobConf();
 
-    // In Hadoop18TapUtil#cleanupJob() we don't want the '_temporary' folder to be deleted on collector.close()
-    conf.setInt("cascading.flow.step", 1);
+    HadoopFlowProcess flowProcess = new HadoopFlowProcess(conf);
+    hadoopTap.sinkConfInit(flowProcess, conf);
+    TupleEntryCollector collector = hadoopTap.openForWrite(flowProcess);
+    for (TupleEntry tuple : data.asTupleEntryList()) {
+      collector.add(tuple);
+    }
+    collector.close();
+  }
+
+  /* WARNING: This is exceedingly brittle as it relies on cascading internals */
+  private void writeToHadoopPartitionTap(Tap<?, ?, ?> tap) throws IOException {
+    @SuppressWarnings("unchecked")
+    BasePartitionTap<JobConf, ?, ?> hadoopTap = (BasePartitionTap<JobConf, ?, ?>) tap;
+    JobConf conf = new JobConf();
+
+    // Avoids deletion of results when using a partition tap (close() will delete the _temporary before the copy has
+    // been done if not in a flow)
+    HadoopUtil.setIsInflow(conf);
 
     HadoopFlowProcess flowProcess = new HadoopFlowProcess(conf);
     hadoopTap.sinkConfInit(flowProcess, conf);
@@ -78,13 +112,20 @@ public class TapDataWriter {
     }
     collector.close();
 
-    // We need to clean up the '_temporary' folder - apparently the flow step does this - so we do this here
-    HadoopFlowStep hadoopFlowStep = new HadoopFlowStep("writeToHadoopTap:" + hadoopTap.getIdentifier(), 1);
-    hadoopFlowStep.addSink("writeToHadoopTap:sink:" + hadoopTap.getIdentifier(), hadoopTap);
-    hadoopFlowStep.clean(conf);
+    // We need to clean up the '_temporary' folder
+    BasePartitionTap<JobConf, ?, ?> partitionTap = hadoopTap;
+    @SuppressWarnings("unchecked")
+    String basePath = partitionTap.getParent().getFullIdentifier(flowProcess);
+    deleteTemporaryPath(new Path(basePath), FileSystem.get(conf));
+  }
 
-    // This doesn't appear to do anything in any implementation at the moment
-    hadoopTap.commitResource(conf);
+  private void deleteTemporaryPath(Path outputPath, FileSystem fileSystem) throws IOException {
+    if (fileSystem.exists(outputPath)) {
+      Path tmpDir = new Path(outputPath, Hadoop18TapUtil.TEMPORARY_PATH);
+      if (fileSystem.exists(tmpDir)) {
+        fileSystem.delete(tmpDir, true);
+      }
+    }
   }
 
   /* WARNING: This is exceedingly brittle as it relies on cascading internals */
@@ -94,9 +135,7 @@ public class TapDataWriter {
     Properties conf = new Properties();
     LocalFlowProcess flowProcess = new LocalFlowProcess(conf);
 
-    // LocalStepStats instance is required for PartitionTap
-    flowProcess.setStepStats(new LocalStepStats(new LocalFlowStep("writeToLocalTap:" + tap.getIdentifier(), 0),
-        NullClientState.INSTANCE));
+    flowProcess.setStepStats(new LocalStepStats(new NullFlowStep(), NullClientState.INSTANCE));
 
     localTap.sinkConfInit(flowProcess, conf);
     TupleEntryCollector collector = localTap.openForWrite(flowProcess);
@@ -114,7 +153,7 @@ public class TapDataWriter {
     }
 
     @Override
-    public void recordStats(CascadingStats stats) {
+    public void recordStats(@SuppressWarnings("rawtypes") CascadingStats stats) {
     }
 
     @Override
@@ -128,6 +167,179 @@ public class TapDataWriter {
     @Override
     public void recordCascade(Cascade cascade) {
     }
+
+    @Override
+    public void recordFlowNode(FlowNode flowNode) {
+    }
   }
 
+  @SuppressWarnings("rawtypes")
+  private static class NullFlowStep implements FlowStep<Properties> {
+
+    @Override
+    public Collection<Group> getGroups() {
+      return null;
+    }
+
+    @Override
+    public Set<Tap> getSourceTaps() {
+      return null;
+    }
+
+    @Override
+    public Set<Tap> getSinkTaps() {
+      return null;
+    }
+
+    @Override
+    public Set<FlowElement> getSinkElements() {
+      return null;
+    }
+
+    @Override
+    public Set<FlowElement> getSourceElements() {
+      return null;
+    }
+
+    @Override
+    public Map<String, Tap> getTrapMap() {
+      return null;
+    }
+
+    @Override
+    public ElementGraph getElementGraph() {
+      return null;
+    }
+
+    @Override
+    public String getID() {
+      return null;
+    }
+
+    @Override
+    public int getOrdinal() {
+      return 0;
+    }
+
+    @Override
+    public String getName() {
+      return null;
+    }
+
+    @Override
+    public Flow<Properties> getFlow() {
+      return null;
+    }
+
+    @Override
+    public String getFlowID() {
+      return null;
+    }
+
+    @Override
+    public String getFlowName() {
+      return null;
+    }
+
+    @Override
+    public Properties getConfig() {
+      return null;
+    }
+
+    @Override
+    public String getStepDisplayName() {
+      return null;
+    }
+
+    @Override
+    public int getSubmitPriority() {
+      return 0;
+    }
+
+    @Override
+    public void setSubmitPriority(int submitPriority) {
+
+    }
+
+    @Override
+    public FlowNodeGraph getFlowNodeGraph() {
+      return null;
+    }
+
+    @Override
+    public int getNumFlowNodes() {
+      return 0;
+    }
+
+    @Override
+    public Group getGroup() {
+      return null;
+    }
+
+    @Override
+    public Tap getSink() {
+      return null;
+    }
+
+    @Override
+    public Set<String> getSourceName(Tap source) {
+      return null;
+    }
+
+    @Override
+    public Set<String> getSinkName(Tap sink) {
+      return null;
+    }
+
+    @Override
+    public Tap getSourceWith(String identifier) {
+      return null;
+    }
+
+    @Override
+    public Tap getSinkWith(String identifier) {
+      return null;
+    }
+
+    @Override
+    public Set<Tap> getTraps() {
+      return null;
+    }
+
+    @Override
+    public Tap getTrap(String name) {
+      return null;
+    }
+
+    @Override
+    public boolean containsPipeNamed(String pipeName) {
+      return false;
+    }
+
+    @Override
+    public FlowStepStats getFlowStepStats() {
+      return null;
+    }
+
+    @Override
+    public boolean hasListeners() {
+      return false;
+    }
+
+    @Override
+    public void addListener(FlowStepListener flowStepListener) {
+
+    }
+
+    @Override
+    public boolean removeListener(FlowStepListener flowStepListener) {
+      return false;
+    }
+
+    @Override
+    public Map<Object, Object> getConfigAsProperties() {
+      return null;
+    }
+
+  }
 }

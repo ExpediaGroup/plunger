@@ -50,19 +50,19 @@ class TupleScheme extends Scheme<Properties, Iterator<Tuple>, List<Tuple>, Void,
 
   /** {@inheritDoc} */
   @Override
-  public void sourceConfInit(FlowProcess<Properties> flowProcess, Tap<Properties, Iterator<Tuple>, List<Tuple>> tap,
-      Properties conf) {
+  public void sourceConfInit(FlowProcess<? extends Properties> flowProcess,
+      Tap<Properties, Iterator<Tuple>, List<Tuple>> tap, Properties conf) {
   }
 
   /** {@inheritDoc} */
   @Override
-  public void sinkConfInit(FlowProcess<Properties> flowProcess, Tap<Properties, Iterator<Tuple>, List<Tuple>> tap,
-      Properties conf) {
+  public void sinkConfInit(FlowProcess<? extends Properties> flowProcess,
+      Tap<Properties, Iterator<Tuple>, List<Tuple>> tap, Properties conf) {
   }
 
   /** {@inheritDoc} */
   @Override
-  public boolean source(FlowProcess<Properties> flowProcess, SourceCall<Void, Iterator<Tuple>> sourceCall)
+  public boolean source(FlowProcess<? extends Properties> flowProcess, SourceCall<Void, Iterator<Tuple>> sourceCall)
     throws IOException {
     if (sourceCall.getInput().hasNext()) {
       sourceCall.getIncomingEntry().setTuple(sourceCall.getInput().next());
@@ -73,7 +73,8 @@ class TupleScheme extends Scheme<Properties, Iterator<Tuple>, List<Tuple>, Void,
 
   /** {@inheritDoc} */
   @Override
-  public void sink(FlowProcess<Properties> flowProcess, SinkCall<Void, List<Tuple>> sinkCall) throws IOException {
+  public void sink(FlowProcess<? extends Properties> flowProcess, SinkCall<Void, List<Tuple>> sinkCall)
+    throws IOException {
     sinkCall.getOutput().add(sinkCall.getOutgoingEntry().getTupleCopy());
   }
 
