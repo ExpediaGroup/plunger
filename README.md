@@ -4,11 +4,12 @@
                   '-''  (__)  \____/\____/\_)__) \___/(____)(__\_)   ''-'
                   
 Use a ``Plunger`` to push test data through your cascading pipework. Catch the output in a ``Bucket`` and check it for correctness.
-#Start using
-You can obtain **plunger** from Maven Central using the following identifier:
 
-* [com.hotels:plunger:2.0.0 (supporting cascading 3.x versions)](http://search.maven.org/#artifactdetails%7Ccom.hotels%7Cplunger%7C2.0.0%7Cjar)
-* [com.hotels:plunger:1.0.4 (supporting cascading 2.x versions)](http://search.maven.org/#artifactdetails%7Ccom.hotels%7Cplunger%7C1.0.4%7Cjar)
+
+#Start using
+You can obtain **plunger** from Maven Central : 
+
+[![Maven Central](https://maven-badges.herokuapp.com/maven-central/com.hotels/plunger/badge.svg?subject=com.hotels:plunger)](https://maven-badges.herokuapp.com/maven-central/com.hotels/plunger)
 
 
 #Overview

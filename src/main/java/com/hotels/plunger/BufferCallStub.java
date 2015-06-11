@@ -123,11 +123,7 @@ public final class BufferCallStub<C> extends AbstractOperationCallStub<C> implem
 
     /** Creates a new group in the stub record sequence. */
     public Builder<C> newGroup(Object... values) {
-      if (values == null || values.length == 0) {
-        values = new Object[groupFields.size()];
-      } else if (values.length != groupFields.size()) {
-        throw new IllegalStateException("Value array length not suitable for group field mask: " + groupFields);
-      }
+      values = FieldTypeValidator.validateValues(groupFields, values);
       flush();
       currentGroup = new TupleEntry(groupFields, new Tuple(values));
       currentValues = new ArrayList<TupleEntry>();
@@ -139,11 +135,8 @@ public final class BufferCallStub<C> extends AbstractOperationCallStub<C> implem
       if (currentGroup == null) {
         throw new IllegalStateException("Must set group before adding tuples.");
       }
-      if (values == null || values.length == 0) {
-        values = new Object[nonGroupFields.size()];
-      } else if (values.length != nonGroupFields.size()) {
-        throw new IllegalStateException("Value array length not suitable for non-group field mask: " + nonGroupFields);
-      }
+      values = FieldTypeValidator.validateValues(nonGroupFields, values);
+
       currentValues.add(new TupleEntry(nonGroupFields, new Tuple(values)));
       return this;
     }
