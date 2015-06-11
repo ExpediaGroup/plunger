@@ -11,8 +11,8 @@ You can obtain **plunger** from Maven Central :
 
 [![Maven Central](https://maven-badges.herokuapp.com/maven-central/com.hotels/plunger/badge.svg?subject=com.hotels:plunger)](https://maven-badges.herokuapp.com/maven-central/com.hotels/plunger)
 
-* plunger-3.0.0 and up requires cascading-3.x.x
-* plunger-2.1.1 and lower requires cascading-2.x.x
+* For Cascading 3.x.x use plunger-3.0.0.
+* For Cascading 2.x.x use plunger-2.1.1.
 
 
 #Overview
