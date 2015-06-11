@@ -11,6 +11,9 @@ You can obtain **plunger** from Maven Central :
 
 [![Maven Central](https://maven-badges.herokuapp.com/maven-central/com.hotels/plunger/badge.svg?subject=com.hotels:plunger)](https://maven-badges.herokuapp.com/maven-central/com.hotels/plunger)
 
+* plunger-3.0.0 and up requires cascading-3.x.x
+* plunger-2.7.0 and lower requires cascading-2.x.x
+
 
 #Overview
 **plunger** is a unit testing framework for the [cascading platform](http://cascading.org "Cascading Application Platform homepage"). It helps you write small and fast unit tests for your ``Assemblies`` with fined grained assertions. A fluent API allows you to rapidly construct test data for delivery via ``Data`` instances and then make assertions on the data captured by ``Buckets``. All test data is maintained in memory to avoid unnecessary I/O overhead. Utility methods are provided as a bridge between input/output files and their in-memory equivalents so that the same style of testing can be applied to ``Flows`` and ``Cascades``.
