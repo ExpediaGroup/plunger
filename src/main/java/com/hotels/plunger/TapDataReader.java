@@ -63,6 +63,7 @@ class TapDataReader {
     while (tuples.hasNext()) {
       resultTuples.add(new Tuple(tuples.next().getTuple()));
     }
+    tuples.close();
     return new Data(source.getSourceFields(), Collections.unmodifiableList(resultTuples));
   }
 
