@@ -17,10 +17,6 @@ package com.hotels.plunger;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
-import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
 import java.io.File;
 import java.io.IOException;
@@ -28,7 +24,6 @@ import java.nio.charset.Charset;
 import java.util.Arrays;
 
 import org.apache.commons.io.FileUtils;
-import org.apache.hadoop.conf.Configuration;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
@@ -168,20 +163,6 @@ public class TapDataReaderTest {
   @Test(expected = IllegalArgumentException.class)
   public void unsupportedTap() throws IOException {
     new TapDataReader(new UnsupportedTap()).read();
-  }
-
-  @Test
-  public void tupleEntryIteratorIsClosed() throws IOException {
-    cascading.tap.hadoop.Hfs hfs = mock(cascading.tap.hadoop.Hfs.class);
-    @SuppressWarnings("unchecked")
-    cascading.flow.FlowProcess<Configuration> flowProcess = any(cascading.flow.FlowProcess.class);
-    cascading.tuple.TupleEntryIterator iterator = mock(cascading.tuple.TupleEntryIterator.class);
-
-    when(hfs.openForRead(flowProcess)).thenReturn(iterator);
-
-    new TapDataReader(hfs).read();
-
-    verify(iterator).close();
   }
 
 }
