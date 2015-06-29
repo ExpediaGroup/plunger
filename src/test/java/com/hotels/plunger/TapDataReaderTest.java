@@ -28,7 +28,6 @@ import java.nio.charset.Charset;
 import java.util.Arrays;
 
 import org.apache.commons.io.FileUtils;
-import org.apache.hadoop.conf.Configuration;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
@@ -170,14 +169,13 @@ public class TapDataReaderTest {
     new TapDataReader(new UnsupportedTap()).read();
   }
 
+  @SuppressWarnings("unchecked")
   @Test
   public void tupleEntryIteratorIsClosed() throws IOException {
     cascading.tap.hadoop.Hfs hfs = mock(cascading.tap.hadoop.Hfs.class);
-    @SuppressWarnings("unchecked")
-    cascading.flow.FlowProcess<Configuration> flowProcess = any(cascading.flow.FlowProcess.class);
     cascading.tuple.TupleEntryIterator iterator = mock(cascading.tuple.TupleEntryIterator.class);
 
-    when(hfs.openForRead(flowProcess)).thenReturn(iterator);
+    when(hfs.openForRead(any(cascading.flow.FlowProcess.class))).thenReturn(iterator);
 
     new TapDataReader(hfs).read();
 
