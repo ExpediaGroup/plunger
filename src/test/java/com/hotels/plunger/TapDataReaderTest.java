@@ -33,12 +33,9 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 
-import cascading.flow.FlowProcess;
-import cascading.tap.hadoop.Hfs;
 import cascading.tap.partition.DelimitedPartition;
 import cascading.tuple.Fields;
 import cascading.tuple.Tuple;
-import cascading.tuple.TupleEntryIterator;
 
 public class TapDataReaderTest {
 
@@ -175,10 +172,10 @@ public class TapDataReaderTest {
 
   @Test
   public void tupleEntryIteratorIsClosed() throws IOException {
-    Hfs hfs = mock(Hfs.class);
+    cascading.tap.hadoop.Hfs hfs = mock(cascading.tap.hadoop.Hfs.class);
     @SuppressWarnings("unchecked")
-    FlowProcess<Configuration> flowProcess = any(FlowProcess.class);
-    TupleEntryIterator iterator = mock(TupleEntryIterator.class);
+    cascading.flow.FlowProcess<Configuration> flowProcess = any(cascading.flow.FlowProcess.class);
+    cascading.tuple.TupleEntryIterator iterator = mock(cascading.tuple.TupleEntryIterator.class);
 
     when(hfs.openForRead(flowProcess)).thenReturn(iterator);
 
