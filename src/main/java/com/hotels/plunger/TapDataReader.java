@@ -49,21 +49,27 @@ class TapDataReader {
    * {@link Fields} confirm to those supplied by {@link Tap#getSourceFields()}.
    */
   Data read() throws IOException {
-    TupleEntryIterator tuples;
-    Class<?> tapConfigClass = TapTypeUtil.getTapConfigClass(source);
+    TupleEntryIterator tuples = null;
+    try {
+      Class<?> tapConfigClass = TapTypeUtil.getTapConfigClass(source);
 
-    if (Configuration.class.equals(tapConfigClass)) {
-      tuples = getHadoopTupleEntryIterator();
-    } else if (Properties.class.equals(tapConfigClass)) {
-      tuples = getLocalTupleEntryIterator();
-    } else {
-      throw new IllegalArgumentException("Unsupported tap type: " + source.getClass());
+      if (Configuration.class.equals(tapConfigClass)) {
+        tuples = getHadoopTupleEntryIterator();
+      } else if (Properties.class.equals(tapConfigClass)) {
+        tuples = getLocalTupleEntryIterator();
+      } else {
+        throw new IllegalArgumentException("Unsupported tap type: " + source.getClass());
+      }
+      List<Tuple> resultTuples = new ArrayList<Tuple>();
+      while (tuples.hasNext()) {
+        resultTuples.add(new Tuple(tuples.next().getTuple()));
+      }
+      return new Data(source.getSourceFields(), Collections.unmodifiableList(resultTuples));
+    } finally {
+      if (tuples != null) {
+        tuples.close();
+      }
     }
-    List<Tuple> resultTuples = new ArrayList<Tuple>();
-    while (tuples.hasNext()) {
-      resultTuples.add(new Tuple(tuples.next().getTuple()));
-    }
-    return new Data(source.getSourceFields(), Collections.unmodifiableList(resultTuples));
   }
 
   private TupleEntryIterator getHadoopTupleEntryIterator() throws IOException {
