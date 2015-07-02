@@ -3,7 +3,7 @@
     '------------|  ||   ) __// (_/\) \/ (/    /( (_ \ ) _)  )   /   ||  |------------'
                   '-''  (__)  \____/\____/\_)__) \___/(____)(__\_)   ''-'
                   
-Use a ``Plunger`` to push test data through your cascading pipework. Catch the output in a ``Bucket`` and check it for correctness.
+Use a ``Plunger`` to push test data through your Cascading pipework. Catch the output in a ``Bucket`` and check it for correctness.
 
 
 #Start using
@@ -11,12 +11,12 @@ You can obtain **plunger** from Maven Central :
 
 [![Maven Central](https://maven-badges.herokuapp.com/maven-central/com.hotels/plunger/badge.svg?subject=com.hotels:plunger)](https://maven-badges.herokuapp.com/maven-central/com.hotels/plunger)
 
-* For Cascading 3.x.x use plunger-3.0.0.
+* For Cascading 3.x.x use plunger-3.0.1.
 * For Cascading 2.x.x use plunger-2.1.1.
 
 
 #Overview
-**plunger** is a unit testing framework for the [cascading platform](http://cascading.org "Cascading Application Platform homepage"). It helps you write small and fast unit tests for your ``Assemblies`` with fined grained assertions. A fluent API allows you to rapidly construct test data for delivery via ``Data`` instances and then make assertions on the data captured by ``Buckets``. All test data is maintained in memory to avoid unnecessary I/O overhead. Utility methods are provided as a bridge between input/output files and their in-memory equivalents so that the same style of testing can be applied to ``Flows`` and ``Cascades``.
+**plunger** is a unit testing framework for the [Cascading platform](http://cascading.org "Cascading Application Platform homepage"). It helps you write small and fast unit tests for your ``Assemblies`` with fined grained assertions. A fluent API allows you to rapidly construct test data for delivery via ``Data`` instances and then make assertions on the data captured by ``Buckets``. All test data is maintained in memory to avoid unnecessary I/O overhead. Utility methods are provided as a bridge between input/output files and their in-memory equivalents so that the same style of testing can be applied to ``Flows`` and ``Cascades``.
 #Testing Assemblies
 ####An end-to-end example
     Plunger plunger = new Plunger();
@@ -115,7 +115,7 @@ For the most part, it's fairly straight forward to test ``Filter``, ``Function``
 Note that all tuples added using ``addTuple`` are associated with the group declared by the most recent ``newGroup`` call. The ``FunctionCallStub`` and ``BufferCallStub`` classes operate in a very similar manner.
 #Assertions
 ####Verifying serialization
-When running cascading jobs on Hadoop it is often a requirement that your cascading classes and their dependencies  are ``Serializable``. However, this is not necessary when running test jobs in local mode. Consequently serialization is often overlooked during development and problems arise only when first deploying the to a Hadoop environment. To help identify these issues early on in the development process **plunger** provides a convenient assertion which you can use to check your Assemblies, Functions, Filters, and so on:
+When running Cascading jobs on Hadoop it is often a requirement that your Cascading classes and their dependencies  are ``Serializable``. However, this is not necessary when running test jobs in local mode. Consequently serialization is often overlooked during development and problems arise only when first deploying the to a Hadoop environment. To help identify these issues early on in the development process **plunger** provides a convenient assertion which you can use to check your Assemblies, Functions, Filters, and so on:
 
     import static com.hotels.plunger.asserts.PlungerAssert.serializable;
     ...
@@ -134,13 +134,13 @@ When verifying the results of your assemblies it can be time consuming to interr
     assertThat(result, is(tupleEntry(fields, "found", 2)));
 
 #Debug output
-For the most part cascading flows can be debugged with your favourite IDE's debugger and cascading's `LocalFlowConnector`. However, sometimes it's useful to quickly see what fields and values are flowing through your pipes. Cascading provides the `cascading.operation.Debug` operation for printing the data in your pipes out to either STDOUT or STDERR. **plunger** tries to simplify this a step further with the `Dump` assembly:
+For the most part Cascading flows can be debugged with your favourite IDE's debugger and Cascading's `LocalFlowConnector`. However, sometimes it's useful to quickly see what fields and values are flowing through your pipes. Cascading provides the `cascading.operation.Debug` operation for printing the data in your pipes out to either STDOUT or STDERR. **plunger** tries to simplify this a step further with the `Dump` assembly:
 
     pipe = new Dump(pipe); // To STDOUT with no prefix
     pipe = new Dump("prefix:\t", pipe, SYSERR) // prefix all output, use a PrintStream of our choosing
 
 #Building
-This project uses the [Maven](http://maven.apache.org/) build system. It also naturally has dependencies on some cascading artifacts which can be found in the [ConJars](http://conjars.org/) repository. To use this repository you may need to add the following stanza to your Maven repository configuration:
+This project uses the [Maven](http://maven.apache.org/) build system. It also naturally has dependencies on some Cascading artifacts which can be found in the [ConJars](http://conjars.org/) repository. To use this repository you may need to add the following stanza to your Maven repository configuration:
 
     <repository>
       <id>conjars.org</id>
@@ -159,7 +159,7 @@ Earlier versions may work but have not been tested.
 
 #Credits
 
-Created by [Elliot West](https://github.com/teabot), with thanks to: Dave Maughan, James Grant, Adrian Woodhead, Sven Zethelius.
+Created by [Elliot West](https://github.com/teabot), with thanks to: [Dave Maughan](https://github.com/nahguam), [Patrick Duin](https://github.com/patduin), [James Grant](https://github.com/noddy76), [Adrian Woodhead](https://github.com/massdosage), Sven Zethelius.
 
 #Legal
 This project is available under the [Apache 2.0 License](http://www.apache.org/licenses/LICENSE-2.0.html).
