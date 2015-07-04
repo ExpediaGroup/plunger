@@ -88,9 +88,45 @@ public class DataBuilder {
     return this;
   }
 
-  /** Creates a new {@link TupleEntry} with the specified values. */
+  /** Creates a new List of {@link TupleEntry} with the specified Tuples. */
+  public DataBuilder addTuples(Iterable<Tuple> tuples) {
+    for (Tuple tuple : tuples) {
+      newTuple();
+      List<Object> elements = Tuple.elements(tuple);
+      setTuple(elements.toArray(new Object[elements.size()]));
+    }
+    return this;
+  }
+
+  /** Creates a new List of {@link TupleEntry} with the specified Tuples. */
+  public DataBuilder addTuples(Tuple... tuples) {
+    for (Tuple tuple : tuples) {
+      newTuple();
+      List<Object> elements = Tuple.elements(tuple);
+      setTuple(elements.toArray(new Object[elements.size()]));
+    }
+    return this;
+  }
+
+  /** Creates a new List of {@link TupleEntry} with the specified values. */
   public DataBuilder addTupleEntry(TupleEntry entry) {
     addTuple(entry.getTuple());
+    return this;
+  }
+
+  /** Creates a new List of {@link TupleEntry} with the specified values. */
+  public DataBuilder addTupleEntries(Iterable<TupleEntry> entries) {
+    for (TupleEntry entry : entries) {
+      addTuple(entry.getTuple());
+    }
+    return this;
+  }
+
+  /** Creates a new List of {@link TupleEntry} with the specified values. */
+  public DataBuilder addTupleEntries(TupleEntry... entries) {
+    for (TupleEntry entry : entries) {
+      addTuple(entry.getTuple());
+    }
     return this;
   }
 
