@@ -91,9 +91,7 @@ public class DataBuilder {
   /** Creates a new List of {@link TupleEntry} with the specified Tuples. */
   public DataBuilder addTuples(Iterable<Tuple> tuples) {
     for (Tuple tuple : tuples) {
-      newTuple();
-      List<Object> elements = Tuple.elements(tuple);
-      setTuple(elements.toArray(new Object[elements.size()]));
+      addTuple(tuple);
     }
     return this;
   }
@@ -101,9 +99,7 @@ public class DataBuilder {
   /** Creates a new List of {@link TupleEntry} with the specified Tuples. */
   public DataBuilder addTuples(Tuple... tuples) {
     for (Tuple tuple : tuples) {
-      newTuple();
-      List<Object> elements = Tuple.elements(tuple);
-      setTuple(elements.toArray(new Object[elements.size()]));
+      addTuple(tuple);
     }
     return this;
   }
@@ -117,7 +113,7 @@ public class DataBuilder {
   /** Creates a new List of {@link TupleEntry} with the specified values. */
   public DataBuilder addTupleEntries(Iterable<TupleEntry> entries) {
     for (TupleEntry entry : entries) {
-      addTuple(entry.getTuple());
+      addTupleEntry(entry);
     }
     return this;
   }
@@ -125,7 +121,7 @@ public class DataBuilder {
   /** Creates a new List of {@link TupleEntry} with the specified values. */
   public DataBuilder addTupleEntries(TupleEntry... entries) {
     for (TupleEntry entry : entries) {
-      addTuple(entry.getTuple());
+      addTupleEntry(entry);
     }
     return this;
   }
