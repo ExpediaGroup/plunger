@@ -18,12 +18,10 @@ package com.hotels.plunger;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 
+import java.util.Arrays;
 import java.util.List;
 
 import org.junit.Test;
-
-import com.hotels.plunger.Data;
-import com.hotels.plunger.DataBuilder;
 
 import cascading.tuple.Fields;
 import cascading.tuple.Tuple;
@@ -121,6 +119,94 @@ public class DataBuilderTest {
   }
 
   @Test
+  public void addMultipleTuplesVarArgs() {
+    DataBuilder builder = new DataBuilder(new Fields("A", "B"));
+
+    builder.addTuples(new Tuple(1, 2), new Tuple(3, 4), new Tuple(5, 6));
+    Data source = builder.build();
+
+    List<Tuple> tuples = source.getTuples();
+
+    assertThat(tuples.size(), is(3));
+    assertThat(tuples.get(0), is(new Tuple(1, 2)));
+    assertThat(tuples.get(1), is(new Tuple(3, 4)));
+    assertThat(tuples.get(2), is(new Tuple(5, 6)));
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void addMultipleTuplesVarArgsInvalidLength() {
+    DataBuilder builder = new DataBuilder(new Fields("A", "B"));
+    builder.addTuples(new Tuple(1, 2), new Tuple(3, 4), new Tuple(5));
+  }
+
+  @Test
+  public void addMultipleTuplesVarArgsWithFields() {
+    DataBuilder builder = new DataBuilder(new Fields("A", "B"));
+    builder.withFields(new Fields("B")).addTuples(new Tuple(1), new Tuple(2));
+
+    Data source = builder.build();
+
+    List<Tuple> tuples = source.getTuples();
+
+    assertThat(tuples.size(), is(2));
+    assertThat(tuples.get(0), is(new Tuple(null, 1)));
+    assertThat(tuples.get(1), is(new Tuple(null, 2)));
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void addMultipleTuplesVarArgsWithFieldsInvalidLength() {
+    DataBuilder builder = new DataBuilder(new Fields("A", "B"));
+    builder.withFields(new Fields("B")).addTuples(new Tuple(1), new Tuple(2, 3));
+  }
+
+  @Test
+  public void addMultipleTuplesIterable() {
+    DataBuilder builder = new DataBuilder(new Fields("A", "B"));
+
+    List<Tuple> tupleList = Arrays.asList(new Tuple(1, 2), new Tuple(3, 4));
+
+    builder.addTuples(tupleList);
+    Data source = builder.build();
+
+    List<Tuple> tuples = source.getTuples();
+
+    assertThat(tuples.size(), is(2));
+    assertThat(tuples.get(0), is(new Tuple(1, 2)));
+    assertThat(tuples.get(1), is(new Tuple(3, 4)));
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void addMultipleTuplesIterableInvalidLength() {
+    DataBuilder builder = new DataBuilder(new Fields("A", "B"));
+    List<Tuple> tupleList = Arrays.asList(new Tuple(1, 2), new Tuple(3, 4), new Tuple(5));
+    builder.addTuples(tupleList);
+  }
+
+  @Test
+  public void addMultipleTuplesIterableWithFields() {
+    DataBuilder builder = new DataBuilder(new Fields("A", "B"));
+
+    List<Tuple> tupleList = Arrays.asList(new Tuple(1), new Tuple(2));
+    builder.withFields(new Fields("B")).addTuples(tupleList);
+
+    Data source = builder.build();
+
+    List<Tuple> tuples = source.getTuples();
+
+    assertThat(tuples.size(), is(2));
+    assertThat(tuples.get(0), is(new Tuple(null, 1)));
+    assertThat(tuples.get(1), is(new Tuple(null, 2)));
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void addMultipleTuplesIterableWithFieldsInvalidLength() {
+    DataBuilder builder = new DataBuilder(new Fields("A", "B"));
+
+    List<Tuple> tupleList = Arrays.asList(new Tuple(1), new Tuple(2, 3));
+    builder.withFields(new Fields("B")).addTuples(tupleList);
+  }
+
+  @Test
   public void addTupleEntry() {
     Fields fields = new Fields("A", "B");
     DataBuilder builder = new DataBuilder(fields);
@@ -163,6 +249,144 @@ public class DataBuilderTest {
   public void addTupleEntryWithFieldsInvalidLength() {
     DataBuilder builder = new DataBuilder(new Fields("A", "B"));
     builder.withFields(new Fields("B")).addTupleEntry(new TupleEntry(new Fields("A", "B"), new Tuple(1, 2)));
+  }
+
+  @Test
+  public void addMultipleTupleEntriesVarArgs() {
+    Fields fields = new Fields("A", "B");
+    DataBuilder builder = new DataBuilder(fields);
+    builder.addTupleEntries(new TupleEntry(fields, new Tuple(1, 2)), new TupleEntry(fields, new Tuple(3, 4)));
+    Data source = builder.build();
+
+    List<Tuple> tuples = source.getTuples();
+
+    assertThat(tuples.size(), is(2));
+    assertThat(tuples.get(0), is(new Tuple(1, 2)));
+    assertThat(tuples.get(1), is(new Tuple(3, 4)));
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void addMultipleTupleEntriesVarArgsInvalidLength() {
+    Fields fields = new Fields("A", "B");
+    DataBuilder builder = new DataBuilder(fields);
+    builder.addTupleEntries(new TupleEntry(fields, new Tuple(1, 2)), new TupleEntry(new Fields("A", "B", "C"),
+        new Tuple(1, 2, 3)));
+  }
+
+  @Test
+  public void addMultipleTupleEntriesVarArgsWithFields() {
+    Fields fields = new Fields("A", "B");
+    DataBuilder builder = new DataBuilder(fields);
+    Fields subFields = new Fields("B");
+    builder.withFields(subFields).addTupleEntries(new TupleEntry(subFields, new Tuple(1)),
+        new TupleEntry(subFields, new Tuple(3)));
+    Data source = builder.build();
+
+    List<Tuple> tuples = source.getTuples();
+
+    assertThat(tuples.size(), is(2));
+    assertThat(tuples.get(0), is(new Tuple(null, 1)));
+    assertThat(tuples.get(1), is(new Tuple(null, 3)));
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void addMultipleTupleEntriesVarArgsWithFieldsInvalidLength() {
+    DataBuilder builder = new DataBuilder(new Fields("A", "B"));
+    builder.withFields(new Fields("B")).addTupleEntries(new TupleEntry(new Fields("B"), new Tuple(1)),
+        new TupleEntry(new Fields("A", "B"), new Tuple(1, 2)));
+  }
+
+  @Test
+  public void addMultipleTupleEntriesIterable() {
+    Fields fields = new Fields("A", "B");
+    DataBuilder builder = new DataBuilder(fields);
+
+    List<TupleEntry> tupleEntries = Arrays.asList(new TupleEntry(fields, new Tuple(1, 2)), new TupleEntry(fields,
+        new Tuple(3, 4)));
+
+    builder.addTupleEntries(tupleEntries);
+    Data source = builder.build();
+
+    List<Tuple> tuples = source.getTuples();
+
+    assertThat(tuples.size(), is(2));
+    assertThat(tuples.get(0), is(new Tuple(1, 2)));
+    assertThat(tuples.get(1), is(new Tuple(3, 4)));
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void addMultipleTupleEntriesIterableInvalidLength() {
+    DataBuilder builder = new DataBuilder(new Fields("A", "B"));
+
+    List<TupleEntry> tupleEntries = Arrays.asList(new TupleEntry(new Fields("A", "B"), new Tuple(1, 2)),
+        new TupleEntry(new Fields("A", "B", "C"), new Tuple(1, 2, 3)));
+
+    builder.addTupleEntries(tupleEntries);
+  }
+
+  @Test
+  public void addMultipleTupleEntriesIterableWithFields() {
+    Fields fields = new Fields("A", "B");
+    DataBuilder builder = new DataBuilder(fields);
+    Fields subFields = new Fields("B");
+
+    List<TupleEntry> tupleEntries = Arrays.asList(new TupleEntry(subFields, new Tuple(1)), new TupleEntry(subFields,
+        new Tuple(3)));
+
+    builder.withFields(subFields).addTupleEntries(tupleEntries);
+    Data source = builder.build();
+
+    List<Tuple> tuples = source.getTuples();
+
+    assertThat(tuples.size(), is(2));
+    assertThat(tuples.get(0), is(new Tuple(null, 1)));
+    assertThat(tuples.get(1), is(new Tuple(null, 3)));
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void addMultipleTupleEntriesIterableWithFieldsInvalidLength() {
+    DataBuilder builder = new DataBuilder(new Fields("A", "B"));
+
+    List<TupleEntry> tupleEntries = Arrays.asList(new TupleEntry(new Fields("B"), new Tuple(2)), new TupleEntry(
+        new Fields("A", "B"), new Tuple(1, 2)));
+
+    builder.withFields(new Fields("B")).addTupleEntries(tupleEntries);
+  }
+
+  @Test
+  public void selectFieldsToSetUsingMultipleEntriesIterableInsert() {
+    Fields fields = new Fields("A", "B", "C", "D");
+    DataBuilder builder = new DataBuilder(fields);
+    Fields subFields = new Fields("B", "D");
+
+    List<TupleEntry> tupleEntries = Arrays.asList(new TupleEntry(subFields, new Tuple(1, 2)), new TupleEntry(subFields,
+        new Tuple(3, 4)));
+
+    builder.withFields(subFields).addTupleEntries(tupleEntries);
+    Data source = builder.build();
+
+    List<Tuple> tuples = source.getTuples();
+
+    assertThat(tuples.size(), is(2));
+    assertThat(tuples.get(0), is(new Tuple(null, 1, null, 2)));
+    assertThat(tuples.get(1), is(new Tuple(null, 3, null, 4)));
+  }
+
+  @Test
+  public void setDifferentFieldsUsingAddTuple() {
+    Fields fields = new Fields("A", "B", "C", "D");
+    DataBuilder builder = new DataBuilder(fields);
+
+    builder.withFields(new Fields("A", "C")).addTuple(new Tuple(1, 2));
+    builder.withFields(new Fields("B", "D")).addTuple(new Tuple(3, 4));
+
+    Data source = builder.build();
+
+    List<Tuple> tuples = source.getTuples();
+
+    assertThat(tuples.size(), is(2));
+    assertThat(tuples.get(0), is(new Tuple(1, null, 2, null)));
+    assertThat(tuples.get(1), is(new Tuple(null, 3, null, 4)));
   }
 
   @Test
