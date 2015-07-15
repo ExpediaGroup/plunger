@@ -15,11 +15,12 @@
  */
 package com.hotels.plunger;
 
-import static com.hotels.plunger.asserts.PlungerAssert.tupleEntry;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.nullValue;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.mock;
+
+import static com.hotels.plunger.asserts.PlungerAssert.tupleEntry;
 
 import java.util.List;
 
@@ -112,8 +113,6 @@ public class ValueAssertionCallStubTest {
 
     stub.getOutputCollector().add(new Tuple(1, 2));
   }
-
-  // TODO: test withFields()
 
   @SuppressWarnings({ "rawtypes", "unchecked" })
   @Test
