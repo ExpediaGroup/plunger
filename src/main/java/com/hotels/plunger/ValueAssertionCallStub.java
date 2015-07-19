@@ -1,4 +1,5 @@
 package com.hotels.plunger;
+
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -65,15 +66,6 @@ public final class ValueAssertionCallStub<C> extends AbstractOperationCallStub<C
       }
       this.fields = fields;
       fieldMask = fields;
-    }
-
-    /** Specify the output fields when they are different to the nonGroupFields. */
-    public Builder<C> outputFields(Fields outputFields) {
-      if (outputFields == null) {
-        throw new IllegalArgumentException("outputFields == null");
-      }
-      this.outputFields = outputFields;
-      return this;
     }
 
     public Builder<C> addTuple(Object... values) {

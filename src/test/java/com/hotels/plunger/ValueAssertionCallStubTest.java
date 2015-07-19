@@ -20,14 +20,12 @@ import static org.hamcrest.CoreMatchers.nullValue;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.mock;
 
-import static com.hotels.plunger.asserts.PlungerAssert.tupleEntry;
-
 import java.util.List;
 
 import org.junit.Test;
 
 import cascading.flow.FlowProcess;
-import cascading.operation.Identity;
+import cascading.operation.AssertionException;
 import cascading.operation.assertion.AssertNotNull;
 import cascading.tuple.Fields;
 import cascading.tuple.Tuple;
@@ -36,7 +34,6 @@ import cascading.tuple.TupleEntry;
 public class ValueAssertionCallStubTest {
 
   private static final Fields FIELDS = new Fields("field");
-  private static final Fields OUTPUT = new Fields("output");
 
   private ValueAssertionCallStub<String> stub;
 
@@ -57,13 +54,6 @@ public class ValueAssertionCallStubTest {
     stub = new ValueAssertionCallStub.Builder<String>(FIELDS).build();
     assertThat(stub.getArgumentFields(), is(FIELDS));
     assertThat(stub.getDeclaredFields(), is(FIELDS));
-  }
-
-  @Test
-  public void argumentsFieldsIgnoreOutputFields() {
-    stub = new ValueAssertionCallStub.Builder<String>(FIELDS).outputFields(OUTPUT).build();
-    assertThat(stub.getArgumentFields(), is(FIELDS));
-    assertThat(stub.getDeclaredFields(), is(OUTPUT));
   }
 
   @Test
@@ -117,24 +107,7 @@ public class ValueAssertionCallStubTest {
   @SuppressWarnings({ "rawtypes", "unchecked" })
   @Test
   public void complete() {
-    List<TupleEntry> actual = new FunctionCallStub.Builder(FIELDS)
-        .addTuple("a")
-        .addTuple("b")
-        .build()
-        .complete(mock(FlowProcess.class), new Identity())
-        .result()
-        .asTupleEntryList();
-
-    assertThat(actual.size(), is(2));
-    assertThat(actual.get(0), tupleEntry(FIELDS, "a"));
-    assertThat(actual.get(1), tupleEntry(FIELDS, "b"));
-  }
-
-  @Test
-  public void completeDifferentOutputFields() {
-    @SuppressWarnings("unchecked")
-    List<TupleEntry> actual = new ValueAssertionCallStub.Builder<Void>(FIELDS)
-        .outputFields(OUTPUT)
+    List<TupleEntry> actual = new ValueAssertionCallStub.Builder(FIELDS)
         .addTuple("a")
         .addTuple("b")
         .build()
@@ -144,4 +117,17 @@ public class ValueAssertionCallStubTest {
 
     assertThat(actual.size(), is(0));
   }
+
+  @SuppressWarnings({ "rawtypes", "unchecked" })
+  @Test(expected = AssertionException.class)
+  public void assertionFailComplete() {
+    List<TupleEntry> actual = new ValueAssertionCallStub.Builder(FIELDS)
+        .addTuple("a")
+        .addTuple((Object) null)
+        .build()
+        .complete(mock(FlowProcess.class), new AssertNotNull())
+        .result()
+        .asTupleEntryList();
+  }
+
 }
