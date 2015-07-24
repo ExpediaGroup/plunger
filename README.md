@@ -9,7 +9,8 @@ Use a ``Plunger`` to push test data through your Cascading pipework. Catch the o
 #Start using
 You can obtain **plunger** from Maven Central : 
 
-![GitHub license](https://img.shields.io/github/license/HotelsDotCom/plunger.svg)[![Maven Central](https://maven-badges.herokuapp.com/maven-central/com.hotels/plunger/badge.svg?subject=com.hotels:plunger)](https://maven-badges.herokuapp.com/maven-central/com.hotels/plunger)
+[![Maven Central](https://maven-badges.herokuapp.com/maven-central/com.hotels/plunger/badge.svg?subject=com.hotels:plunger)](https://maven-badges.herokuapp.com/maven-central/com.hotels/plunger) ![GitHub license](https://img.shields.io/github/license/HotelsDotCom/plunger.svg)
+
 
 * For Cascading 3.x.x use plunger-3.0.1.
 * For Cascading 2.x.x use plunger-2.1.1.
