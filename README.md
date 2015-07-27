@@ -100,9 +100,9 @@ The code above will output the following to ``System.out`` (you can supply anoth
 #Testing Aggregators, Buffers, and Functions
 For the most part, it's fairly straight forward to test ``Filter``, ``Function``, ``Aggregator``, and ``Buffer`` classes using only your [favourite mocking](https://code.google.com/p/mockito/) framework. However, it is often the case with aggregator implementations - and to a lesser extent functions - that we need to hold some state between invocations in the operation's ``Context``. It is not always possible to implement this behaviour with our mocks, and even when it is, the resulting code can be rather verbose. **plunger** provides some stub classes to facilitate the testing of aggregators and functions that use the ``OperationCall.Context``. Additionally they allow sets of test data to be fluently declared and operation output captured for later validation in much the same way as the ``DataBuilder`` and ``Bucket`` classes. Here is an aggregator example.
 
-    MyLast aggregator = new MyLast(FIELDS));
+    Aggregator<Context> aggregator = new MyLast(FIELDS);
     
-    stubCall = Plunger.newAggregatorCallStubBuilder(GROUP_FIELDS, FIELDS)
+    AggregatorCallStub<Context> stubCall = Plunger.<Context>newAggregatorCallStubBuilder(GROUP_FIELDS, FIELDS)
         .newGroup(1)
         .addTuple("2013-01-01")
         .addTuple("2013-01-02")
