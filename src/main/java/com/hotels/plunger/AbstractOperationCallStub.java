@@ -31,6 +31,7 @@ abstract class AbstractOperationCallStub<C> implements OperationCall<C> {
   private C context;
   private final Fields argumentFields;
   private final Fields declaredFields;
+  private final Fields outputFields;
 
   final List<TupleEntry> collected = new ArrayList<TupleEntry>();
   final TupleEntryCollector collector = new TupleEntryCollector() {
@@ -45,9 +46,9 @@ abstract class AbstractOperationCallStub<C> implements OperationCall<C> {
 
     @Override
     protected void collect(TupleEntry tupleEntry) throws IOException {
-      if (!tupleEntry.getFields().equals(getDeclaredFields())) {
-        throw new IllegalArgumentException("Collected fields != declared fields: " + tupleEntry.getFields() + ", "
-            + getDeclaredFields());
+      if (!tupleEntry.getFields().equals(getOutputFields())) {
+        throw new IllegalArgumentException("Collected fields != output fields: " + tupleEntry.getFields() + ", "
+            + getOutputFields());
       }
       collected.add(new TupleEntry(tupleEntry));
     }
@@ -56,6 +57,13 @@ abstract class AbstractOperationCallStub<C> implements OperationCall<C> {
   AbstractOperationCallStub(Fields argumentFields, Fields declaredFields) {
     this.argumentFields = argumentFields;
     this.declaredFields = declaredFields;
+    this.outputFields = declaredFields;
+  }
+
+  AbstractOperationCallStub(Fields argumentFields, Fields declaredFields, Fields outputFields) {
+    this.argumentFields = argumentFields;
+    this.declaredFields = declaredFields;
+    this.outputFields = outputFields;
   }
 
   @Override
@@ -75,6 +83,10 @@ abstract class AbstractOperationCallStub<C> implements OperationCall<C> {
 
   public Fields getDeclaredFields() {
     return declaredFields;
+  }
+
+  public Fields getOutputFields() {
+    return outputFields;
   }
 
   public TupleEntryCollector getOutputCollector() {

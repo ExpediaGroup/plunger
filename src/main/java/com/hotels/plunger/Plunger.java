@@ -81,6 +81,12 @@ public final class Plunger {
     return new AggregatorCallStub.Builder<C>(groupFields, nonGroupFields);
   }
 
+  /** Creates a stub builder to assist in testing {@link Aggregator} implementations. */
+  public static <C> AggregatorCallStub.Builder<C> newAggregatorCallStubBuilder(Fields groupFields,
+      Fields nonGroupFields, Fields outputFields) {
+    return new AggregatorCallStub.Builder<C>(groupFields, nonGroupFields).outputFields(outputFields);
+  }
+
   /** Creates a stub builder to assist in testing {@link Buffer} implementations. */
   public static <C> BufferCallStub.Builder<C> newBufferCallStubBuilder(Fields groupFields, Fields nonGroupFields) {
     return new BufferCallStub.Builder<C>(groupFields, nonGroupFields);
