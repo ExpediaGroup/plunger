@@ -341,5 +341,22 @@ public class TapDataWriter {
       return null;
     }
 
+    @Override
+    public Map<String, String> getProcessAnnotations() {
+      return null;
+    }
+
+    @Override
+    public void addProcessAnnotation(Enum annotation) {
+    }
+
+    @Override
+    public void addProcessAnnotation(String key, String value) {
+    }
+
+    @Override
+    public void setFlowStepStats(FlowStepStats flowStepStats) {
+    }
+
   }
 }
