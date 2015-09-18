@@ -15,7 +15,7 @@
   <url>https://github.com/HotelsDotCom/plunger</url>
 
   <properties>
-    <cascading.version>3.0.0</cascading.version>
+    <cascading.version>3.0.2</cascading.version>
     <hadoop.version>2.6.0</hadoop.version>
   </properties>
 
