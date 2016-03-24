@@ -43,7 +43,7 @@ public class TupleListTap extends Tap<Properties, Iterator<Tuple>, List<Tuple>> 
   /**
    * Constructs a tap that can provided the declared {@link Tuple Tuples} into a {@link Pipe}.
    */
-  TupleListTap(Fields fields, Iterable<Tuple> input) {
+  public TupleListTap(Fields fields, Iterable<Tuple> input) {
     super(new TupleScheme(fields));
     this.input = input.iterator();
     id = getClass().getSimpleName() + ":" + UUID.randomUUID().toString();
