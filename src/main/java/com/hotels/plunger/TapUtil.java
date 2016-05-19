@@ -17,12 +17,19 @@ package com.hotels.plunger;
 
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Properties;
 
+import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.mapred.JobConf;
+
+import cascading.flow.hadoop.util.HadoopUtil;
 import cascading.tap.CompositeTap;
 import cascading.tap.Tap;
 
-/** Determines {@link Tap} platform category (Hadoop, local, etc.). */
-class TapTypeUtil {
+/** Utility methods for {@linkplain Tap taps} */
+class TapUtil {
 
   /** Determines the type of the configuration type argument of the supplied {@link Tap}. */
   static Class<?> getTapConfigClass(Tap<?, ?, ?> tap) {
@@ -46,6 +53,24 @@ class TapTypeUtil {
       currentClass = currentClass.getSuperclass();
     }
     return null;
+  }
+
+  /** Create a new {@link JobConf} which has all the values in the given {@link Configuration} */
+  static JobConf newJobConf(Configuration conf) {
+    JobConf jobConf = conf == null ? new JobConf() : new JobConf(conf);
+    return jobConf;
+  }
+
+  /** Create a new {@link Properties} object which has all the values in the given {@link Configuration} */
+  static Properties newJobProperties(Configuration conf) {
+    Properties jobProperties = new Properties();
+    if (conf != null) {
+      Map<Object, Object> props = HadoopUtil.createProperties(conf);
+      for (Entry<Object, Object> e : props.entrySet()) {
+        jobProperties.put(e.getKey(), e.getValue());
+      }
+    }
+    return jobProperties;
   }
 
 }

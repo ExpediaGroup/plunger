@@ -16,10 +16,12 @@
 package com.hotels.plunger;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 
 import java.util.Properties;
 
 import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.mapred.JobConf;
 import org.apache.hadoop.mapred.OutputCollector;
 import org.apache.hadoop.mapred.RecordReader;
 import org.junit.Test;
@@ -28,58 +30,84 @@ import cascading.scheme.Scheme;
 import cascading.tap.partition.DelimitedPartition;
 import cascading.tuple.Fields;
 
-public class TapTypeUtilTest {
+public class TapUtilTest {
 
   @Test
   public void localFileTap() {
-    Class<?> tapType = TapTypeUtil.getTapConfigClass(new cascading.tap.local.FileTap(
-        new cascading.scheme.local.TextDelimited(), ""));
+    Class<?> tapType = TapUtil
+        .getTapConfigClass(new cascading.tap.local.FileTap(new cascading.scheme.local.TextDelimited(), ""));
     assertEquals(Properties.class, tapType);
   }
 
   @Test
   public void localPartitionTap() {
-    Class<?> tapType = TapTypeUtil.getTapConfigClass(new cascading.tap.local.PartitionTap(
-        new cascading.tap.local.FileTap(new cascading.scheme.local.TextDelimited(), ""), new DelimitedPartition(
-            new Fields("A"))));
+    Class<?> tapType = TapUtil.getTapConfigClass(new cascading.tap.local.PartitionTap(
+        new cascading.tap.local.FileTap(new cascading.scheme.local.TextDelimited(), ""),
+        new DelimitedPartition(new Fields("A"))));
     assertEquals(Properties.class, tapType);
   }
 
   @Test
   public void hadoopHfsTap() {
-    Class<?> tapType = TapTypeUtil.getTapConfigClass(new cascading.tap.hadoop.Hfs(
-        new cascading.scheme.hadoop.TextDelimited(), ""));
+    Class<?> tapType = TapUtil
+        .getTapConfigClass(new cascading.tap.hadoop.Hfs(new cascading.scheme.hadoop.TextDelimited(), ""));
     assertEquals(Configuration.class, tapType);
   }
 
   @Test
   public void multiLevelHierarchy() {
-    Class<?> tapType = TapTypeUtil.getTapConfigClass(new TestHfs(new cascading.scheme.hadoop.TextDelimited(), ""));
+    Class<?> tapType = TapUtil.getTapConfigClass(new TestHfs(new cascading.scheme.hadoop.TextDelimited(), ""));
     assertEquals(Configuration.class, tapType);
   }
 
   @Test
   public void hadoopPartitionTap() {
-    Class<?> tapType = TapTypeUtil.getTapConfigClass(new cascading.tap.hadoop.PartitionTap(
-        new cascading.tap.hadoop.Hfs(new cascading.scheme.hadoop.TextDelimited(), ""), new DelimitedPartition(
-            new Fields("A"))));
+    Class<?> tapType = TapUtil.getTapConfigClass(new cascading.tap.hadoop.PartitionTap(
+        new cascading.tap.hadoop.Hfs(new cascading.scheme.hadoop.TextDelimited(), ""),
+        new DelimitedPartition(new Fields("A"))));
     assertEquals(Configuration.class, tapType);
   }
 
   @SuppressWarnings({ "rawtypes", "unchecked" })
   @Test
   public void compositeHadoopTap() {
-    Class<?> tapType = TapTypeUtil.getTapConfigClass(new cascading.tap.MultiSourceTap(new cascading.tap.hadoop.Hfs(
-        new cascading.scheme.hadoop.TextDelimited(), "")));
+    Class<?> tapType = TapUtil.getTapConfigClass(new cascading.tap.MultiSourceTap(
+        new cascading.tap.hadoop.Hfs(new cascading.scheme.hadoop.TextDelimited(), "")));
     assertEquals(Configuration.class, tapType);
   }
 
   @SuppressWarnings({ "rawtypes", "unchecked" })
   @Test
   public void compositeLocalTap() {
-    Class<?> tapType = TapTypeUtil.getTapConfigClass(new cascading.tap.MultiSourceTap(new cascading.tap.local.FileTap(
-        new cascading.scheme.local.TextDelimited(), "")));
+    Class<?> tapType = TapUtil.getTapConfigClass(new cascading.tap.MultiSourceTap(
+        new cascading.tap.local.FileTap(new cascading.scheme.local.TextDelimited(), "")));
     assertEquals(Properties.class, tapType);
+  }
+
+  @Test
+  public void nullHadoopConfig() {
+    assertNotNull(TapUtil.newJobConf(null));
+  }
+
+  @Test
+  public void notNullHadoopConfig() {
+    Configuration conf = new Configuration();
+    conf.set("my-key", "my-val");
+    JobConf jobConf = TapUtil.newJobConf(conf);
+    assertEquals("my-val", jobConf.get("my-key"));
+  }
+
+  @Test
+  public void nullLocalConfig() {
+    assertNotNull(TapUtil.newJobProperties(null));
+  }
+
+  @Test
+  public void notNullLocalConfig() {
+    Configuration conf = new Configuration();
+    conf.set("my-key", "my-val");
+    Properties jobProps = TapUtil.newJobProperties(conf);
+    assertEquals("my-val", jobProps.getProperty("my-key"));
   }
 
   private static class TestHfs extends cascading.tap.hadoop.Hfs {

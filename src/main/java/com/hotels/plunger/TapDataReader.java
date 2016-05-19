@@ -19,8 +19,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Properties;
 
 import org.apache.hadoop.conf.Configuration;
@@ -28,7 +26,6 @@ import org.apache.hadoop.mapred.JobConf;
 
 import cascading.flow.FlowProcess;
 import cascading.flow.hadoop.HadoopFlowProcess;
-import cascading.flow.hadoop.util.HadoopUtil;
 import cascading.flow.local.LocalFlowProcess;
 import cascading.tap.Tap;
 import cascading.tuple.Fields;
@@ -49,7 +46,7 @@ class TapDataReader {
   }
 
   /**
-   * Allows for suppling a set of configuration properties for the {@link Tap}.
+   * Set the {@link Configuration} to use for this {@link Tap}.
    *
    * @param conf {@link Tap} {@link Configuration}
    * @return this object.
@@ -66,7 +63,7 @@ class TapDataReader {
   Data read() throws IOException {
     TupleEntryIterator tuples = null;
     try {
-      Class<?> tapConfigClass = TapTypeUtil.getTapConfigClass(source);
+      Class<?> tapConfigClass = TapUtil.getTapConfigClass(source);
 
       if (Configuration.class.equals(tapConfigClass)) {
         tuples = getHadoopTupleEntryIterator();
@@ -87,35 +84,19 @@ class TapDataReader {
     }
   }
 
-  private JobConf newJobConf() {
-    JobConf conf = this.conf == null ? new JobConf() : new JobConf(this.conf);
-    return conf;
-  }
-
   private TupleEntryIterator getHadoopTupleEntryIterator() throws IOException {
     @SuppressWarnings("unchecked")
     Tap<JobConf, ?, ?> hadoopTap = (Tap<JobConf, ?, ?>) source;
-    JobConf conf = newJobConf();
+    JobConf conf = TapUtil.newJobConf(this.conf);
     FlowProcess<JobConf> flowProcess = new HadoopFlowProcess(conf);
     hadoopTap.sourceConfInit(flowProcess, conf);
     return hadoopTap.openForRead(flowProcess);
   }
 
-  private Properties newJobProperties() {
-    Properties conf = new Properties();
-    if (this.conf != null) {
-      Map<Object, Object> props = HadoopUtil.createProperties(this.conf);
-      for (Entry<Object, Object> e : props.entrySet()) {
-        conf.put(e.getKey(), e.getValue());
-      }
-    }
-    return conf;
-  }
-
   private TupleEntryIterator getLocalTupleEntryIterator() throws IOException {
     @SuppressWarnings("unchecked")
     Tap<Properties, ?, ?> localTap = (Tap<Properties, ?, ?>) source;
-    Properties properties = newJobProperties();
+    Properties properties = TapUtil.newJobProperties(conf);
     FlowProcess<Properties> flowProcess = new LocalFlowProcess(properties);
     localTap.sourceConfInit(flowProcess, properties);
     return localTap.openForRead(flowProcess);

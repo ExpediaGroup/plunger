@@ -18,7 +18,6 @@ package com.hotels.plunger;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Properties;
 import java.util.Set;
 
@@ -65,7 +64,7 @@ public class TapDataWriter {
   }
 
   /**
-   * Allows for suppling a set of configuration properties for the {@link Tap}.
+   * Set the {@link Configuration} to use for this {@link Tap}.
    *
    * @param conf {@link Tap} {@link Configuration}
    * @return this object.
@@ -77,7 +76,7 @@ public class TapDataWriter {
 
   /** Writes the {@link Tuple Tuples} provided in the {@link Data} instance to the supplied {@link Tap}. */
   public Tap<?, ?, ?> toTap(Tap<?, ?, ?> tap) throws IOException {
-    Class<?> tapConfigClass = TapTypeUtil.getTapConfigClass(tap);
+    Class<?> tapConfigClass = TapUtil.getTapConfigClass(tap);
     if (Configuration.class.equals(tapConfigClass)) {
       if (tap instanceof BasePartitionTap) {
         writeToHadoopPartitionTap(tap);
@@ -92,16 +91,11 @@ public class TapDataWriter {
     return tap;
   }
 
-  private JobConf newJobConf() {
-    JobConf conf = this.conf == null ? new JobConf() : new JobConf(this.conf);
-    return conf;
-  }
-
   /* WARNING: This is exceedingly brittle as it relies on cascading internals */
   private void writeToHadoopTap(Tap<?, ?, ?> tap) throws IOException {
     @SuppressWarnings("unchecked")
     Tap<JobConf, ?, ?> hadoopTap = (Tap<JobConf, ?, ?>) tap;
-    JobConf conf = newJobConf();
+    JobConf conf = TapUtil.newJobConf(this.conf);
 
     HadoopFlowProcess flowProcess = new HadoopFlowProcess(conf);
     hadoopTap.sinkConfInit(flowProcess, conf);
@@ -116,7 +110,7 @@ public class TapDataWriter {
   private void writeToHadoopPartitionTap(Tap<?, ?, ?> tap) throws IOException {
     @SuppressWarnings("unchecked")
     BasePartitionTap<JobConf, ?, ?> hadoopTap = (BasePartitionTap<JobConf, ?, ?>) tap;
-    JobConf conf = newJobConf();
+    JobConf conf = TapUtil.newJobConf(this.conf);
 
     // Avoids deletion of results when using a partition tap (close() will delete the _temporary before the copy has
     // been done if not in a flow)
@@ -146,22 +140,11 @@ public class TapDataWriter {
     }
   }
 
-  private Properties newJobProperties() {
-    Properties conf = new Properties();
-    if (this.conf != null) {
-      Map<Object, Object> props = HadoopUtil.createProperties(this.conf);
-      for (Entry<Object, Object> e : props.entrySet()) {
-        conf.put(e.getKey(), e.getValue());
-      }
-    }
-    return conf;
-  }
-
   /* WARNING: This is exceedingly brittle as it relies on cascading internals */
   private void writeToLocalTap(Tap<?, ?, ?> tap) throws IOException {
     @SuppressWarnings("unchecked")
     Tap<Properties, ?, ?> localTap = (Tap<Properties, ?, ?>) tap;
-    Properties conf = newJobProperties();
+    Properties conf = TapUtil.newJobProperties(this.conf);
     LocalFlowProcess flowProcess = new LocalFlowProcess(conf);
 
     flowProcess.setStepStats(new LocalStepStats(new NullFlowStep(), NullClientState.INSTANCE));
