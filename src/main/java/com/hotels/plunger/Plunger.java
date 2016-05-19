@@ -65,7 +65,7 @@ public final class Plunger {
 
   /**
    * Supplies a {@link TapDataWriter} for writing the provided {@link Data} to a {@link Tap} instance using the given
-   * {@link Configuration} properties.
+   * {@link Configuration}.
    */
   public static TapDataWriter writeData(Data data, Configuration conf) {
     return new TapDataWriter(data).conf(conf);
@@ -76,7 +76,7 @@ public final class Plunger {
     return readDataFromTap(source, null);
   }
 
-  /** Reads data from the supplied {@link Tap} and given {@link Configuration} properties. */
+  /** Reads data from the supplied {@link Tap} using the given {@link Configuration}. */
   public static Data readDataFromTap(Tap<?, ?, ?> source, Configuration conf) throws IOException {
     return new TapDataReader(source).conf(conf).read();
   }
