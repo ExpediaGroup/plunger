@@ -18,7 +18,9 @@ package com.hotels.plunger;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -26,12 +28,16 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.util.Arrays;
+import java.util.Properties;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.hadoop.conf.Configuration;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
+import org.mockito.ArgumentCaptor;
 
+import cascading.flow.FlowProcess;
 import cascading.tap.partition.DelimitedPartition;
 import cascading.tuple.Fields;
 import cascading.tuple.Tuple;
@@ -52,12 +58,35 @@ public class TapDataReaderTest {
     File tsvFile = temporaryFolder.newFile("data.tsv");
     FileUtils.writeStringToFile(tsvFile, "1\thello\tX\n2\taloha\tY\n", Charset.forName("UTF-8"));
 
-    cascading.tap.local.FileTap fileTap = new cascading.tap.local.FileTap(new cascading.scheme.local.TextDelimited(
-        fields), tsvFile.getAbsolutePath());
+    cascading.tap.local.FileTap fileTap = new cascading.tap.local.FileTap(
+        new cascading.scheme.local.TextDelimited(fields), tsvFile.getAbsolutePath());
 
     Data actual = new TapDataReader(fileTap).read();
 
     assertThat(actual, is(expected));
+  }
+
+  @SuppressWarnings("unchecked")
+  @Test
+  public void readLocalWithConfig() throws IOException {
+    Configuration conf = new Configuration();
+    conf.set("my-prop", "my-val");
+
+    File tsvFile = temporaryFolder.newFile("data.tsv");
+    FileUtils.writeStringToFile(tsvFile, "1\thello\tX\n2\taloha\tY\n", Charset.forName("UTF-8"));
+
+    cascading.tap.local.FileTap fileTap = spy(
+        new cascading.tap.local.FileTap(new cascading.scheme.local.TextDelimited(fields), tsvFile.getAbsolutePath()));
+
+    Data actual = new TapDataReader(fileTap).conf(conf).read();
+
+    assertThat(actual, is(expected));
+
+    @SuppressWarnings("rawtypes")
+    ArgumentCaptor<FlowProcess> flowProcessCaptor = ArgumentCaptor.forClass(FlowProcess.class);
+    ArgumentCaptor<Properties> propertiesCaptor = ArgumentCaptor.forClass(Properties.class);
+    verify(fileTap, atLeastOnce()).sourceConfInit(flowProcessCaptor.capture(), propertiesCaptor.capture());
+    assertThat(propertiesCaptor.getValue().getProperty("my-prop"), is("my-val"));
   }
 
   @Test
@@ -71,7 +100,8 @@ public class TapDataReaderTest {
 
     cascading.tap.local.PartitionTap partitionTap = new cascading.tap.local.PartitionTap(
         new cascading.tap.local.FileTap(new cascading.scheme.local.TextDelimited(valueFields),
-            tsvFolder.getAbsolutePath()), new DelimitedPartition(partitionFields));
+            tsvFolder.getAbsolutePath()),
+        new DelimitedPartition(partitionFields));
 
     Data actual = new TapDataReader(partitionTap).read();
 
@@ -90,7 +120,8 @@ public class TapDataReaderTest {
 
     cascading.tap.local.PartitionTap partitionTap = new cascading.tap.local.PartitionTap(
         new cascading.tap.local.FileTap(new cascading.scheme.local.TextDelimited(valueFields),
-            tsvFolder.getAbsolutePath()), new DelimitedPartition(partitionFields));
+            tsvFolder.getAbsolutePath()),
+        new DelimitedPartition(partitionFields));
 
     Data actual = new TapDataReader(partitionTap).read();
 
@@ -112,6 +143,31 @@ public class TapDataReaderTest {
     assertThat(actual, is(expected));
   }
 
+  @SuppressWarnings("unchecked")
+  @Test
+  public void readHadoopWithConfig() throws IOException {
+    Configuration conf = new Configuration();
+    conf.set("my-prop", "my-val");
+
+    File tsvFolder = temporaryFolder.newFolder("data");
+    File tsvFile = new File(tsvFolder, "part-00000");
+
+    FileUtils.writeStringToFile(tsvFile, "1\thello\tX\n2\taloha\tY\n", Charset.forName("UTF-8"));
+
+    cascading.tap.hadoop.Hfs hfs = spy(
+        new cascading.tap.hadoop.Hfs(new cascading.scheme.hadoop.TextDelimited(fields), tsvFolder.getAbsolutePath()));
+
+    Data actual = new TapDataReader(hfs).conf(conf).read();
+
+    assertThat(actual, is(expected));
+
+    @SuppressWarnings("rawtypes")
+    ArgumentCaptor<FlowProcess> flowProcessCaptor = ArgumentCaptor.forClass(FlowProcess.class);
+    ArgumentCaptor<Configuration> configurationCaptor = ArgumentCaptor.forClass(Configuration.class);
+    verify(hfs, atLeastOnce()).sourceConfInit(flowProcessCaptor.capture(), configurationCaptor.capture());
+    assertThat(configurationCaptor.getValue().get("my-prop"), is("my-val"));
+  }
+
   @Test
   public void readMultiSource() throws IOException {
     File tsvFolder = temporaryFolder.newFolder("data");
@@ -119,8 +175,8 @@ public class TapDataReaderTest {
 
     FileUtils.writeStringToFile(tsvFile, "1\thello\tX\n2\taloha\tY\n", Charset.forName("UTF-8"));
 
-    cascading.tap.MultiSourceTap<?, ?, ?> multiTap = new cascading.tap.MultiSourceTap<>(new cascading.tap.hadoop.Hfs(
-        new cascading.scheme.hadoop.TextDelimited(fields), tsvFolder.getAbsolutePath()));
+    cascading.tap.MultiSourceTap<?, ?, ?> multiTap = new cascading.tap.MultiSourceTap<>(
+        new cascading.tap.hadoop.Hfs(new cascading.scheme.hadoop.TextDelimited(fields), tsvFolder.getAbsolutePath()));
 
     Data actual = new TapDataReader(multiTap).read();
 
@@ -138,7 +194,8 @@ public class TapDataReaderTest {
 
     cascading.tap.hadoop.PartitionTap partitionTap = new cascading.tap.hadoop.PartitionTap(
         new cascading.tap.hadoop.Hfs(new cascading.scheme.hadoop.TextDelimited(valueFields),
-            tsvFolder.getAbsolutePath()), new DelimitedPartition(partitionFields));
+            tsvFolder.getAbsolutePath()),
+        new DelimitedPartition(partitionFields));
 
     Data actual = new TapDataReader(partitionTap).read();
 
@@ -157,7 +214,8 @@ public class TapDataReaderTest {
 
     cascading.tap.hadoop.PartitionTap partitionTap = new cascading.tap.hadoop.PartitionTap(
         new cascading.tap.hadoop.Hfs(new cascading.scheme.hadoop.TextDelimited(valueFields),
-            tsvFolder.getAbsolutePath()), new DelimitedPartition(partitionFields));
+            tsvFolder.getAbsolutePath()),
+        new DelimitedPartition(partitionFields));
 
     Data actual = new TapDataReader(partitionTap).read();
 

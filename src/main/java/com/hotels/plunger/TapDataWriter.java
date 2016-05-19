@@ -18,6 +18,7 @@ package com.hotels.plunger;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Properties;
 import java.util.Set;
 
@@ -57,9 +58,21 @@ import cascading.tuple.TupleEntryCollector;
 public class TapDataWriter {
 
   private final Data data;
+  private Configuration conf;
 
   TapDataWriter(Data data) {
     this.data = data;
+  }
+
+  /**
+   * Allows for suppling a set of configuration properties for the {@link Tap}.
+   *
+   * @param conf {@link Tap} {@link Configuration}
+   * @return this object.
+   */
+  TapDataWriter conf(Configuration conf) {
+    this.conf = conf;
+    return this;
   }
 
   /** Writes the {@link Tuple Tuples} provided in the {@link Data} instance to the supplied {@link Tap}. */
@@ -79,11 +92,16 @@ public class TapDataWriter {
     return tap;
   }
 
+  private JobConf newJobConf() {
+    JobConf conf = this.conf == null ? new JobConf() : new JobConf(this.conf);
+    return conf;
+  }
+
   /* WARNING: This is exceedingly brittle as it relies on cascading internals */
   private void writeToHadoopTap(Tap<?, ?, ?> tap) throws IOException {
     @SuppressWarnings("unchecked")
     Tap<JobConf, ?, ?> hadoopTap = (Tap<JobConf, ?, ?>) tap;
-    JobConf conf = new JobConf();
+    JobConf conf = newJobConf();
 
     HadoopFlowProcess flowProcess = new HadoopFlowProcess(conf);
     hadoopTap.sinkConfInit(flowProcess, conf);
@@ -98,7 +116,7 @@ public class TapDataWriter {
   private void writeToHadoopPartitionTap(Tap<?, ?, ?> tap) throws IOException {
     @SuppressWarnings("unchecked")
     BasePartitionTap<JobConf, ?, ?> hadoopTap = (BasePartitionTap<JobConf, ?, ?>) tap;
-    JobConf conf = new JobConf();
+    JobConf conf = newJobConf();
 
     // Avoids deletion of results when using a partition tap (close() will delete the _temporary before the copy has
     // been done if not in a flow)
@@ -128,11 +146,22 @@ public class TapDataWriter {
     }
   }
 
+  private Properties newJobProperties() {
+    Properties conf = new Properties();
+    if (this.conf != null) {
+      Map<Object, Object> props = HadoopUtil.createProperties(this.conf);
+      for (Entry<Object, Object> e : props.entrySet()) {
+        conf.put(e.getKey(), e.getValue());
+      }
+    }
+    return conf;
+  }
+
   /* WARNING: This is exceedingly brittle as it relies on cascading internals */
   private void writeToLocalTap(Tap<?, ?, ?> tap) throws IOException {
     @SuppressWarnings("unchecked")
     Tap<Properties, ?, ?> localTap = (Tap<Properties, ?, ?>) tap;
-    Properties conf = new Properties();
+    Properties conf = newJobProperties();
     LocalFlowProcess flowProcess = new LocalFlowProcess(conf);
 
     flowProcess.setStepStats(new LocalStepStats(new NullFlowStep(), NullClientState.INSTANCE));
@@ -359,4 +388,5 @@ public class TapDataWriter {
     }
 
   }
+
 }

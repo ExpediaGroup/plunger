@@ -18,6 +18,8 @@ package com.hotels.plunger;
 import java.io.IOException;
 import java.util.UUID;
 
+import org.apache.hadoop.conf.Configuration;
+
 import cascading.flow.Flow;
 import cascading.operation.Aggregator;
 import cascading.operation.Buffer;
@@ -58,12 +60,25 @@ public final class Plunger {
 
   /** Supplies a {@link TapDataWriter} for writing the provided {@link Data} to a {@link Tap} instance. */
   public static TapDataWriter writeData(Data data) {
-    return new TapDataWriter(data);
+    return writeData(data, null);
+  }
+
+  /**
+   * Supplies a {@link TapDataWriter} for writing the provided {@link Data} to a {@link Tap} instance using the given
+   * {@link Configuration} properties.
+   */
+  public static TapDataWriter writeData(Data data, Configuration conf) {
+    return new TapDataWriter(data).conf(conf);
   }
 
   /** Reads data from the supplied {@link Tap}. */
   public static Data readDataFromTap(Tap<?, ?, ?> source) throws IOException {
-    return new TapDataReader(source).read();
+    return readDataFromTap(source, null);
+  }
+
+  /** Reads data from the supplied {@link Tap} and given {@link Configuration} properties. */
+  public static Data readDataFromTap(Tap<?, ?, ?> source, Configuration conf) throws IOException {
+    return new TapDataReader(source).conf(conf).read();
   }
 
   /** Returns the internal {@link Flow} used by this instance. */
@@ -77,7 +92,8 @@ public final class Plunger {
   }
 
   /** Creates a stub builder to assist in testing {@link Aggregator} implementations. */
-  public static <C> AggregatorCallStub.Builder<C> newAggregatorCallStubBuilder(Fields groupFields, Fields nonGroupFields) {
+  public static <C> AggregatorCallStub.Builder<C> newAggregatorCallStubBuilder(Fields groupFields,
+      Fields nonGroupFields) {
     return new AggregatorCallStub.Builder<C>(groupFields, nonGroupFields);
   }
 

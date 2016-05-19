@@ -17,17 +17,24 @@ package com.hotels.plunger;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
+import static org.mockito.Mockito.atLeastOnce;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.verify;
 
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.util.Arrays;
+import java.util.Properties;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.hadoop.conf.Configuration;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
+import org.mockito.ArgumentCaptor;
 
+import cascading.flow.FlowProcess;
 import cascading.tap.Tap;
 import cascading.tap.hadoop.util.Hadoop18TapUtil;
 import cascading.tap.partition.DelimitedPartition;
@@ -58,12 +65,36 @@ public class TapDataWriterTest {
     assertThat(written, is("X\t1\thello\nY\t2\tworld\n"));
   }
 
+  @SuppressWarnings("unchecked")
+  @Test
+  public void writeLocalWithConfig() throws IOException {
+    Configuration conf = new Configuration();
+    conf.set("my-prop", "my-val");
+
+    File tsvFile = temporaryFolder.newFile("data.tsv");
+    cascading.tap.local.FileTap fileTap = spy(
+        new cascading.tap.local.FileTap(new cascading.scheme.local.TextDelimited(), tsvFile.getAbsolutePath()));
+    Tap<?, ?, ?> returnedTap = new TapDataWriter(data).conf(conf).toTap(fileTap);
+
+    assertThat((cascading.tap.local.FileTap) returnedTap, is(fileTap));
+    String written = FileUtils.readFileToString(tsvFile, Charset.forName("UTF-8"));
+
+    assertThat(written, is("X\t1\thello\nY\t2\tworld\n"));
+
+    @SuppressWarnings("rawtypes")
+    ArgumentCaptor<FlowProcess> flowProcessCaptor = ArgumentCaptor.forClass(FlowProcess.class);
+    ArgumentCaptor<Properties> propertiesCaptor = ArgumentCaptor.forClass(Properties.class);
+    verify(fileTap, atLeastOnce()).sinkConfInit(flowProcessCaptor.capture(), propertiesCaptor.capture());
+    assertThat(propertiesCaptor.getValue().getProperty("my-prop"), is("my-val"));
+  }
+
   @Test
   public void writeLocalPartition() throws IOException {
     File tsvFolder = temporaryFolder.newFolder("data");
     cascading.tap.local.PartitionTap partitionTap = new cascading.tap.local.PartitionTap(
         new cascading.tap.local.FileTap(new cascading.scheme.local.TextDelimited(valueFields),
-            tsvFolder.getAbsolutePath()), new DelimitedPartition(partitionFields));
+            tsvFolder.getAbsolutePath()),
+        new DelimitedPartition(partitionFields));
     Tap<?, ?, ?> returnedTap = new TapDataWriter(data).toTap(partitionTap);
 
     assertThat((cascading.tap.local.PartitionTap) returnedTap, is(partitionTap));
@@ -93,12 +124,37 @@ public class TapDataWriterTest {
     assertThat(new File(tsvFolder, Hadoop18TapUtil.TEMPORARY_PATH).exists(), is(false));
   }
 
+  @SuppressWarnings("unchecked")
+  @Test
+  public void writeHfsWithConfig() throws IOException {
+    Configuration conf = new Configuration();
+    conf.set("my-prop", "my-val");
+
+    File tsvFolder = temporaryFolder.newFolder("data");
+    cascading.tap.hadoop.Hfs hfsTap = spy(
+        new cascading.tap.hadoop.Hfs(new cascading.scheme.hadoop.TextDelimited(), tsvFolder.getAbsolutePath()));
+    Tap<?, ?, ?> returnedTap = new TapDataWriter(data).conf(conf).toTap(hfsTap);
+
+    assertThat((cascading.tap.hadoop.Hfs) returnedTap, is(hfsTap));
+    String written = FileUtils.readFileToString(new File(tsvFolder, "part-00000"), Charset.forName("UTF-8"));
+
+    assertThat(written, is("X\t1\thello\nY\t2\tworld\n"));
+    assertThat(new File(tsvFolder, Hadoop18TapUtil.TEMPORARY_PATH).exists(), is(false));
+
+    @SuppressWarnings("rawtypes")
+    ArgumentCaptor<FlowProcess> flowProcessCaptor = ArgumentCaptor.forClass(FlowProcess.class);
+    ArgumentCaptor<Configuration> configurationCaptor = ArgumentCaptor.forClass(Configuration.class);
+    verify(hfsTap, atLeastOnce()).sinkConfInit(flowProcessCaptor.capture(), configurationCaptor.capture());
+    assertThat(configurationCaptor.getValue().get("my-prop"), is("my-val"));
+  }
+
   @Test
   public void writeHadoopPartition() throws IOException {
     File tsvFolder = temporaryFolder.newFolder("data");
     cascading.tap.hadoop.PartitionTap partitionTap = new cascading.tap.hadoop.PartitionTap(
         new cascading.tap.hadoop.Hfs(new cascading.scheme.hadoop.TextDelimited(valueFields),
-            tsvFolder.getAbsolutePath()), new DelimitedPartition(partitionFields));
+            tsvFolder.getAbsolutePath()),
+        new DelimitedPartition(partitionFields));
 
     Data data = new Data(fields, Arrays.asList(new Tuple("X", 1, "hello"), new Tuple("Y", 2, "world")));
     Tap<?, ?, ?> returnedTap = new TapDataWriter(data).toTap(partitionTap);
