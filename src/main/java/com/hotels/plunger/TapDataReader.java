@@ -61,9 +61,8 @@ class TapDataReader {
         throw new IllegalArgumentException("Unsupported tap type: " + source.getClass());
       }
       List<Tuple> resultTuples = new ArrayList<Tuple>();
-      tuples.getTupleEntry();
       while (tuples.hasNext()) {
-        resultTuples.add(tuples.next().getTupleCopy());
+        resultTuples.add(new Tuple(tuples.next().getTupleCopy()));
         System.err.println(resultTuples);
       }
       System.err.println(resultTuples);
