@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2014-2016 Expedia Inc.
+ * Copyright (C) 2014-2019 Expedia Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -149,28 +149,22 @@ public class TapDataWriter {
   private static class NullClientState extends ClientState {
     private static NullClientState INSTANCE = new NullClientState();
 
-    private NullClientState() {
-    }
+    private NullClientState() {}
 
     @Override
-    public void recordStats(@SuppressWarnings("rawtypes") CascadingStats stats) {
-    }
+    public void recordStats(@SuppressWarnings("rawtypes") CascadingStats stats) {}
 
     @Override
-    public void recordFlowStep(@SuppressWarnings("rawtypes") FlowStep flowStep) {
-    }
+    public void recordFlowStep(@SuppressWarnings("rawtypes") FlowStep flowStep) {}
 
     @Override
-    public void recordFlow(@SuppressWarnings("rawtypes") Flow flow) {
-    }
+    public void recordFlow(@SuppressWarnings("rawtypes") Flow flow) {}
 
     @Override
-    public void recordCascade(Cascade cascade) {
-    }
+    public void recordCascade(Cascade cascade) {}
 
     @Override
-    public void recordFlowNode(FlowNode flowNode) {
-    }
+    public void recordFlowNode(FlowNode flowNode) {}
   }
 
   @SuppressWarnings("rawtypes")
@@ -347,15 +341,17 @@ public class TapDataWriter {
     }
 
     @Override
-    public void addProcessAnnotation(Enum annotation) {
-    }
+    public void addProcessAnnotation(Enum annotation) {}
 
     @Override
-    public void addProcessAnnotation(String key, String value) {
-    }
+    public void addProcessAnnotation(String key, String value) {}
 
     @Override
-    public void setFlowStepStats(FlowStepStats flowStepStats) {
+    public void setFlowStepStats(FlowStepStats flowStepStats) {}
+
+    @Override
+    public Map<String, String> getFlowStepDescriptor() {
+      return null;
     }
 
   }
