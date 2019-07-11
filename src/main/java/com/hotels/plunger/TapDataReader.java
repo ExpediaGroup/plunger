@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2014-2016 Expedia Inc.
+ * Copyright (C) 2014-2019 Expedia Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -61,9 +61,18 @@ class TapDataReader {
         throw new IllegalArgumentException("Unsupported tap type: " + source.getClass());
       }
       List<Tuple> resultTuples = new ArrayList<Tuple>();
+      Tuple copy = null;
       while (tuples.hasNext()) {
-        resultTuples.add(new Tuple(tuples.next().getTuple()));
+        copy = tuples.next().getTupleCopy();
+        resultTuples.add(copy);
+        System.err.println("After adding...");
+        System.err.println("resultTuples: " + resultTuples);
+        System.err.println("copy: " + copy);
       }
+      System.err.println("After while loop...");
+      System.err.println("resultTuples: " + resultTuples);
+      System.err.println("copy: " + copy);
+      
       return new Data(source.getSourceFields(), Collections.unmodifiableList(resultTuples));
     } finally {
       if (tuples != null) {
