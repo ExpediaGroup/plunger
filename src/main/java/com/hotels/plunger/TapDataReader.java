@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2014-2016 Expedia Inc.
+ * Copyright (C) 2014-2019 Expedia Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -62,7 +62,8 @@ class TapDataReader {
       }
       List<Tuple> resultTuples = new ArrayList<Tuple>();
       while (tuples.hasNext()) {
-        resultTuples.add(new Tuple(tuples.next().getTuple()));
+        Tuple copy = new Tuple(tuples.next().getTupleCopy());
+        resultTuples.add(copy);
       }
       return new Data(source.getSourceFields(), Collections.unmodifiableList(resultTuples));
     } finally {

@@ -8,14 +8,14 @@
   </parent>
 
   <artifactId>plunger</artifactId>
-  <version>3.0.3-SNAPSHOT</version>
+  <version>3.1.0-SNAPSHOT</version>
   <name>Plunger</name>
   <description>Framework to simplify testing Cascading applications</description>
   <url>https://github.com/HotelsDotCom/plunger</url>
    <inceptionYear>2014</inceptionYear>
 
   <properties>
-    <cascading.version>3.0.2</cascading.version>
+    <cascading.version>3.3.0</cascading.version>
     <hadoop.version>2.6.0</hadoop.version>
   </properties>
 

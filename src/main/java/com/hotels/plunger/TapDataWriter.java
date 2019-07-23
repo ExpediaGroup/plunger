@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2014-2016 Expedia Inc.
+ * Copyright (C) 2014-2019 Expedia Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -356,6 +356,11 @@ public class TapDataWriter {
 
     @Override
     public void setFlowStepStats(FlowStepStats flowStepStats) {
+    }
+
+    @Override
+    public Map<String, String> getFlowStepDescriptor() {
+      return null;
     }
 
   }
