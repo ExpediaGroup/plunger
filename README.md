@@ -2,14 +2,17 @@
     .------------|  ||  (  _ \(  )  / )( \(  ( \ / __)(  __)(  _ \   ||  |------------.
     '------------|  ||   ) __// (_/\) \/ (/    /( (_ \ ) _)  )   /   ||  |------------'
                   '-''  (__)  \____/\____/\_)__) \___/(____)(__\_)   ''-'
-                  
+
 Use a ``Plunger`` to push test data through your Cascading pipework. Catch the output in a ``Bucket`` and check it for correctness.
 
+## Status ⚠️
+
+This project is no longer in active development.
 
 # Start using
-You can obtain **plunger** from Maven Central : 
+You can obtain **plunger** from Maven Central :
 
-[![Maven Central](https://maven-badges.herokuapp.com/maven-central/com.hotels/plunger/badge.svg?subject=com.hotels:plunger)](https://maven-badges.herokuapp.com/maven-central/com.hotels/plunger) ![GitHub license](https://img.shields.io/github/license/HotelsDotCom/plunger.svg)
+[![Maven Central](https://maven-badges.herokuapp.com/maven-central/com.hotels/plunger/badge.svg?subject=com.hotels:plunger)](https://maven-badges.herokuapp.com/maven-central/com.hotels/plunger) ![GitHub license](https://img.shields.io/github/license/ExpediaGroup/plunger.svg)
 
 
 * For Cascading 3.x.x use plunger-3.0.2.
@@ -21,22 +24,22 @@ You can obtain **plunger** from Maven Central :
 # Testing Assemblies
 #### An end-to-end example
     Plunger plunger = new Plunger();
-    
+
     Data corpus = new DataBuilder(new Fields("line"))
         .addTuple("one word the found other")
         .addTuple("other waterfalls found of")
         .build();
     Pipe words = plunger.newNamedPipe("words", corpus);
-        
+
     Pipe assemblyToTest = new WordCountAssembly(words);
-    
+
     Bucket bucket = plunger.newBucket(new Fields("word", "count"), assemblyToTest);
-    
+
     List<Tuple> actual = bucket.result().asTupleList();
     assertThat(actual.size(), is(7));
     assertThat(actual.get(0), is(new Tuple("found", 2)));
 The above example exhibits many of the core features provided by **plunger**. What follows is a cookbook of the typical usage scenarios:
-#### Build test data incrementally 
+#### Build test data incrementally
     Data employees = new DataBuilder(new Fields("first", "last", "age"))
         .addTuple("bob", "smith", 28)
         .copyTuple().set("last", "jones")
@@ -73,7 +76,7 @@ It's nice to be able to perform integration tests on your entire ``Flow`` or ``C
         .addTuple(1, "bill", "2013-01-01")
         .addTuple(2, "dave", "2001-01-02")
         .build();
-        
+
     Plunger.writeData(employees).toTap(sink);
     // Creates the file 'new_test_data_file.csv' and appends two records
 #### Load flow generated output files into memory
@@ -81,7 +84,7 @@ It's nice to be able to perform integration tests on your entire ``Flow`` or ``C
 
     // Loads the contents of 'output'    
     List<Tuple> actual = Plunger.readDataFromTap(generated).asTupleList();
-    
+
     assertThat(actual.size(), is(7));
 # Other data related features
 #### Pretty printing data
@@ -89,9 +92,9 @@ During the development of your tests it can be useful to see what data is being 
 
     Bucket bucket = plunger.newBucket(new Fields("word", "count"), assembly);
     bucket.result().prettyPrinter().print();
-    
+
 The code above will output the following to ``System.out`` (you can supply another ``PrintStream`` with the ``printTo`` method if you wish):
-    
+
     word    count
     found   2
     other   2
@@ -101,7 +104,7 @@ The code above will output the following to ``System.out`` (you can supply anoth
 For the most part, it's fairly straight forward to test ``Filter``, ``Function``, ``Aggregator``, and ``Buffer`` classes using only your [favourite mocking](https://code.google.com/p/mockito/) framework. However, it is often the case with aggregator implementations - and to a lesser extent functions - that we need to hold some state between invocations in the operation's ``Context``. It is not always possible to implement this behaviour with our mocks, and even when it is, the resulting code can be rather verbose. **plunger** provides some stub classes to facilitate the testing of aggregators and functions that use the ``OperationCall.Context``. Additionally they allow sets of test data to be fluently declared and operation output captured for later validation in much the same way as the ``DataBuilder`` and ``Bucket`` classes. Here is an aggregator example.
 
     Aggregator<Context> aggregator = new MyLast(FIELDS);
-    
+
     AggregatorCallStub<Context> stubCall = Plunger.<Context>newAggregatorCallStubBuilder(GROUP_FIELDS, FIELDS)
         .newGroup(1)
         .addTuple("2013-01-01")

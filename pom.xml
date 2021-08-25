@@ -11,7 +11,7 @@
   <version>3.1.0-SNAPSHOT</version>
   <name>Plunger</name>
   <description>Framework to simplify testing Cascading applications</description>
-  <url>https://github.com/HotelsDotCom/plunger</url>
+  <url>https://github.com/ExpediaGroup/plunger</url>
    <inceptionYear>2014</inceptionYear>
 
   <properties>
@@ -20,9 +20,9 @@
   </properties>
 
   <scm>
-    <connection>scm:git:https://${GIT_USERNAME}:${GIT_PASSWORD}@github.com/HotelsDotCom/${project.artifactId}.git</connection>
-    <developerConnection>scm:git:https://${GIT_USERNAME}:${GIT_PASSWORD}@github.com/HotelsDotCom/${project.artifactId}.git</developerConnection>
-    <url>https://github.com/HotelsDotCom/plunger</url>
+    <connection>scm:git:https://${GIT_USERNAME}:${GIT_PASSWORD}@github.com/ExpediaGroup/${project.artifactId}.git</connection>
+    <developerConnection>scm:git:https://${GIT_USERNAME}:${GIT_PASSWORD}@github.com/ExpediaGroup/${project.artifactId}.git</developerConnection>
+    <url>https://github.com/ExpediaGroup/plunger</url>
     <tag>HEAD</tag>
   </scm>
 
